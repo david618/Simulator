@@ -188,13 +188,20 @@ public class Tcp {
     
     public static void main(String args[]) {
        
-        
-        for (int i=0; i< 1; i++) {
-            Tcp tcp = new Tcp("d1.trinity.dev", 5565);
-            tcp.sendFile("faa-stream.csv", 100000, 200000, 0);
-            tcp.shutdown();
+        if (args.length != 5) {
+            System.err.print("Usage: Simulator <server> <port> <file> <rate> <numrecords>\n");
+        } else {
+            Tcp t = new Tcp(args[0], Integer.parseInt(args[1]));
+            t.sendFile(args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]), 0);
             
         }
+        
+//        for (int i=0; i< 1; i++) {
+//            Tcp tcp = new Tcp("d1.trinity.dev", 5565);
+//            tcp.sendFile("faa-stream.csv", 100000, 200000, 0);
+//            tcp.shutdown();
+//            
+//        }
         
         
         
