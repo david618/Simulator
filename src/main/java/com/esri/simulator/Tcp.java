@@ -36,7 +36,14 @@ public class Tcp {
         
     }
     
-    
+    public void shutdown() {
+        try {
+            os.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+    }
     
     
     /**
@@ -60,6 +67,9 @@ public class Tcp {
             while ((line = br.readLine()) != null) {
                 lines.add(line);                
             }
+            
+            br.close();
+            fr.close();
             
             Iterator<String> linesIt = lines.iterator();
             
@@ -97,6 +107,7 @@ public class Tcp {
                     line = linesIt.next() + "\n";
 
                     final long stime = System.nanoTime();
+                    
                     this.os.write(line.getBytes());
                     this.os.flush();
 
@@ -117,6 +128,7 @@ public class Tcp {
                 Integer msDelay = burstDelay;
                 Integer numPerBurst = Math.round(rate / 1000 * msDelay); 
 
+                if (numPerBurst < 1) numPerBurst = 1;
 
                 while (cnt < numToSend) {
                     cnt += numPerBurst;
@@ -156,6 +168,7 @@ public class Tcp {
             
         } catch (Exception e) {
             // Could fail on very large files that would fill heap space 
+            System.out.println(os.toString());
             e.printStackTrace();
             
         }
@@ -175,8 +188,14 @@ public class Tcp {
     
     public static void main(String args[]) {
        
-        Tcp tcp = new Tcp("localhost", 5565);
-        tcp.sendFile("faa-stream.csv", 10000, 200000, 0);
+        
+        for (int i=0; i< 1; i++) {
+            Tcp tcp = new Tcp("d1.trinity.dev", 5565);
+            tcp.sendFile("faa-stream.csv", 100000, 200000, 0);
+            tcp.shutdown();
+            
+        }
+        
         
         
     }
