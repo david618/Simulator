@@ -12,5 +12,6 @@
 hs_err_pid*
 
 target/*
-simFile*
+simFile_5000*
+simFile_10000*
 nbactions.xml
