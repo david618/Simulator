@@ -193,7 +193,7 @@ public class Tcp {
         } else {
             Tcp t = new Tcp(args[0], Integer.parseInt(args[1]));
             t.sendFile(args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]), 0);
-            
+            t.shutdown();
         }
         
 //        for (int i=0; i< 1; i++) {
