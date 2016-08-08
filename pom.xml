@@ -16,7 +16,12 @@
             <groupId>com.esri.geometry</groupId>
             <artifactId>esri-geometry-api</artifactId>
             <version>1.2.1</version>
-        </dependency>        
+        </dependency>    
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>0.10.0.0</version>
+        </dependency>    
     </dependencies>
     <build>
         <finalName>Simulator</finalName>

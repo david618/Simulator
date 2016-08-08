@@ -1,7 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+Used to test parseing lines from the text file.  
+Used to figure out how to parse quoted strings in a csv file that contains commas.
  */
 package com.esri.simulator;
 

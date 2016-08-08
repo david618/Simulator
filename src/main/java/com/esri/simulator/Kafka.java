@@ -1,50 +1,56 @@
 /*
- * Sends events from a tab delimited file to TCP socket
- */
+
+ * Sends events from a tab delimited directly to Kafka
+
+*/
 package com.esri.simulator;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.OutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Properties;
+import java.util.UUID;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 /**
  *
  * @author david
  */
-public class Tcp {
-    private String server;
-    private Integer port;
-    
-    private OutputStream os = null;
+public class Kafka {
 
-    public Tcp(String server, Integer port) {
-        this.server = server;
-        this.port = port;
-        
+    private Producer<String, String> producer;
+    private String topic;
+    
+    public Kafka(String brokers, String topic) {
+    
         try {
-            Socket skt = new Socket(this.server, port);
-            this.os = skt.getOutputStream();
+            Properties props = new Properties();
+            props.put("bootstrap.servers",brokers);
+            props.put("client.id", Kafka.class.getName());
+            props.put("acks", "1");
+            props.put("retries", 0);
+            props.put("batch.size", 16384);
+            props.put("linger.ms", 1);
+            props.put("buffer.memory", 8192000);
+            props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+            props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+            /* Addin Simple Partioner didn't help */
+            //props.put("partitioner.class", SimplePartitioner.class.getCanonicalName());
+            
+            this.producer = new KafkaProducer<>(props);
+            this.topic = topic;
             
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        
+        }        
     }
-    
-    public void shutdown() {
-        try {
-            os.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-    }
-    
     
     /**
      * 
@@ -108,8 +114,8 @@ public class Tcp {
 
                     final long stime = System.nanoTime();
                     
-                    this.os.write(line.getBytes());
-                    this.os.flush();
+                    UUID uuid = UUID.randomUUID();
+                    producer.send(new ProducerRecord<String,String>(this.topic, uuid.toString(),line));
 
                     
                     long etime = 0;
@@ -140,8 +146,9 @@ public class Tcp {
 
                         line = linesIt.next() + "\n";
 
-                        this.os.write(line.getBytes());
-                        this.os.flush();                
+                        UUID uuid = UUID.randomUUID();
+                        producer.send(new ProducerRecord<String,String>(this.topic, uuid.toString(),line));
+
                     }
                     // If you remove some part of the time which is used for sending
                     
@@ -168,7 +175,7 @@ public class Tcp {
             
         } catch (Exception e) {
             // Could fail on very large files that would fill heap space 
-            System.out.println(os.toString());
+            
             e.printStackTrace();
             
         }
@@ -184,28 +191,21 @@ public class Tcp {
     public void sendFile(String filename, Integer rate, Integer numToSend, Integer burstDelay) {
         sendFile(filename, rate, numToSend, burstDelay, 0);
     }
+        
     
     
     public static void main(String args[]) {
-       
-        // Example Command Line args: localhost 5565 faa-stream.csv 1000 10000
+        
+        // Command Line d1.trinity.dev:9092 simFile simFile_1000_10s.dat 1000 10000
         
         if (args.length != 5) {
-            System.err.print("Usage: Tcp <server> <port> <file> <rate> <numrecords>\n");
+            System.err.print("Usage: Kafka <broker-list> <topic> <file> <rate> <numrecords>\n");
         } else {
-            Tcp t = new Tcp(args[0], Integer.parseInt(args[1]));
+            Kafka t = new Kafka(args[0], args[1]);
             t.sendFile(args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]), 0);
-            t.shutdown();
+
         }
-        
-//        for (int i=0; i< 1; i++) {
-//            Tcp tcp = new Tcp("d1.trinity.dev", 5565);
-//            tcp.sendFile("faa-stream.csv", 100000, 200000, 0);
-//            tcp.shutdown();
-//            
-//        }
-        
-        
-        
+                
+       
     }
 }
