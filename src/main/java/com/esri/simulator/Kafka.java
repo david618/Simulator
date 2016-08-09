@@ -194,15 +194,30 @@ public class Kafka {
         
     
     
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
         
         // Command Line d1.trinity.dev:9092 simFile simFile_1000_10s.dat 1000 10000
         
-        if (args.length != 5) {
-            System.err.print("Usage: Kafka <broker-list> <topic> <file> <rate> <numrecords>\n");
+        if (args.length != 5 && args.length != 6) {
+            System.err.print("Usage: Kafka <broker-list-or-hub-name> <topic> <file> <rate> <numrecords> (<burst-delay-ms>)\n");
         } else {
-            Kafka t = new Kafka(args[0], args[1]);
-            t.sendFile(args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]), 0);
+            
+            String brokers = args[0];
+            
+            String brokerSplit[] = brokers.split(":");
+            
+            if (brokerSplit.length == 1) {
+                // Try hub name. Name cannot have a ':' and brokers must have it.
+                brokers = new MarathonInfo().getBrokers(brokers);
+            }   // Otherwise assume it's brokers 
+                        
+            
+            Kafka t = new Kafka(brokers, args[1]);
+            if (args.length == 5) {
+                t.sendFile(args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]), 0);
+            } else {
+                t.sendFile(args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
+            }
 
         }
                 
