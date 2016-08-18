@@ -27,7 +27,12 @@
             <artifactId>httpclient</artifactId>
             <version>4.5.1</version>
             <type>jar</type>
-        </dependency>             
+        </dependency>               
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>2.3.5</version>
+        </dependency>                    
     </dependencies>
     <build>
         <finalName>Simulator</finalName>

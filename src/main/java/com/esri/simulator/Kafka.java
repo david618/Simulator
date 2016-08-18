@@ -7,8 +7,6 @@ package com.esri.simulator;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
