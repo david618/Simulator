@@ -23,6 +23,7 @@ object CsvElasticsearch {
     val numargs = args.length
 
     // example: a3:9200 elasticsearch simulator simfile /home/david/streamfiles
+    // example: a2:9200 elasticsearch simulator simfile D:/streamfiles
 
     if (numargs != 5) {
       System.err.println("Usage: CsvElasticsearch <esNodes> <clusterName> <indexName> <typeName> <folder>")
@@ -40,7 +41,7 @@ object CsvElasticsearch {
 
     val sparkConf = new SparkConf().setAppName(appName)
     // Uncomment the following line to run from IDE
-    //sparkConf.setMaster("local[8]")
+    sparkConf.setMaster("local[8]")
 
     sparkConf.set("es.index.auto.create", "true").set("es.cluster.name",esClusterName).set("es.nodes", esNodes)
 
@@ -64,7 +65,7 @@ object CsvElasticsearch {
         println()
         println("Time %s: Elasticsearch sink (saved %s total records at rate of %s)".format(time, rdd.count(), rate))
       } else {
-        //println("Time %s ".format(time))
+        println("Time %s ".format(time))
       }
     })
 

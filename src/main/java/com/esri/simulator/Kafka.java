@@ -27,7 +27,7 @@ public class Kafka {
     private String topic;
     
     public Kafka(String brokers, String topic) {
-    
+
         try {
             Properties props = new Properties();
             props.put("bootstrap.servers",brokers);

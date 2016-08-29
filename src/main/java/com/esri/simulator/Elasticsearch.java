@@ -65,8 +65,6 @@ public class Elasticsearch {
      * @param filename
      * @param rate
      * @param numToSend
-     * @param burstDelay
-     * @param tweak
      */
     public void sendFile(String idx, String typ, String filename, Integer rate, Integer numToSend, Integer elasticBulk) {
         try {
