@@ -7,39 +7,57 @@
 # python2 get_results.py
 # The sha-bang is set for ubuntu 16.04
 
+# Windows
+# pip isntall httplib2 
+
 import httplib2
-
+import sys
 import json
-
-hosts = []
-#hosts.append("10.32.0.4")
-#hosts.append("10.32.0.5")
-#hosts.append("10.32.0.8")
-#hosts.append("10.32.0.9")
-#hosts.append("10.32.0.10")
-#hosts.append("10.32.0.11")
-#hosts.append("10.32.0.12")
-#hosts.append("10.32.0.14")
-#hosts.append("10.32.0.15")
-#hosts.append("10.32.0.16")
-hosts.append("192.168.56.81")
-hosts.append("192.168.56.82")
-hosts.append("192.168.56.83")
-hosts.append("localhost")
-
-source_port = "14001"
-sink_port = "14002"
 
 source_hosts = []
 sink_hosts = []
 
-for host in hosts:
-	source_hosts.append(host + ":" + source_port)
-	sink_hosts.append(host + ":" + sink_port)
+args = sys.argv
 
-#source_hosts = ["192.168.56.81:9000","192.168.56.82:9000","192.168.56.83:9000"]
+numargs = len(args)
 
-#sink_hosts = ["192.168.56.81:9001","192.168.56.82:9001","192.168.56.83:9001"]
+if numargs != 3:
+        raise Exception("reset_counts2.py source-name sink-name")
+source_name = args[1]
+sink_name = args[2]
+
+try:
+        # Try to get tasks for source
+        conn = httplib2.Http(timeout=1)
+
+        resp, resp_body = conn.request("http://master.mesos/marathon/v2/apps/" + source_name)
+
+        data = json.loads(resp_body)        
+
+        tasks = data['app']['tasks']
+
+        for task in tasks:
+                source_hosts.append(task['host'] + ":" + str(task['ports'][0]))                
+                
+except Exception as e:
+        print("Failed to connect")
+
+
+try:
+        # Try to get tasks for source
+        conn = httplib2.Http(timeout=1)
+
+        resp, resp_body = conn.request("http://master.mesos/marathon/v2/apps/" + sink_name)
+
+        data = json.loads(resp_body)        
+
+        tasks = data['app']['tasks']
+
+        for task in tasks:
+                sink_hosts.append(task['host'] + ":" + str(task['ports'][0]))                
+                
+except Exception as e:
+        print("Failed to connect")
 
 print("Sources")
 for host in source_hosts:
