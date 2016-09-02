@@ -1,7 +1,9 @@
 /*
- * Sends events from a tab delimited file to TCP socket
+ * Sends events from a file to TCP socket
  */
 package com.esri.simulator;
+
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -54,7 +56,7 @@ public class Tcp {
      * @param burstDelay Number of milliseconds to burst at; set to 0 to send one line at a time 
      * @param tweak Used to tweak the actual send rate adjusting for hardware.  (optional)
      */
-    public void sendFile(String filename, Integer rate, Integer numToSend, Integer burstDelay, Integer tweak) {
+    public void sendFile(String filename, Integer rate, Integer numToSend, Integer burstDelay, boolean appendTime, Integer tweak) {
         try {
             FileReader fr = new FileReader(filename);
             BufferedReader br = new BufferedReader(fr);
@@ -104,10 +106,18 @@ public class Tcp {
 
                     if (!linesIt.hasNext()) linesIt = lines.iterator();  // Reset Iterator
 
-                    line = linesIt.next() + "\n";
-
                     final long stime = System.nanoTime();
-                    
+
+                    if (appendTime) {
+                        // assuming CSV
+
+                        line = linesIt.next() + "," + String.valueOf(System.currentTimeMillis()) + "\n";
+                    } else {
+                        line = linesIt.next() + "\n";
+                    }
+
+
+
                     this.os.write(line.getBytes());
                     this.os.flush();
 
@@ -138,7 +148,13 @@ public class Tcp {
                         i += 1;
                         if (!linesIt.hasNext()) linesIt = lines.iterator();  // Reset Iterator
 
-                        line = linesIt.next() + "\n";
+
+                        if (appendTime) {
+                            line = linesIt.next() + "," + String.valueOf(System.currentTimeMillis()) + "\n";
+                        } else {
+                            line = linesIt.next() + "\n";
+                        }
+
 
                         this.os.write(line.getBytes());
                         this.os.flush();                
@@ -181,31 +197,26 @@ public class Tcp {
      * @param numToSend
      * @param burstDelay 
      */
-    public void sendFile(String filename, Integer rate, Integer numToSend, Integer burstDelay) {
-        sendFile(filename, rate, numToSend, burstDelay, 0);
+    public void sendFile(String filename, Integer rate, Integer numToSend, Integer burstDelay, boolean appendTime) {
+        // tweak at 0
+        sendFile(filename, rate, numToSend, burstDelay, appendTime, 0);
     }
     
     
     public static void main(String args[]) {
        
         // Example Command Line args: localhost 5565 faa-stream.csv 1000 10000
-        
-        if (args.length != 5) {
-            System.err.print("Usage: Tcp <server> <port> <file> <rate> <numrecords>\n");
+
+        int numargs = args.length;
+        if (numargs != 5 && numargs != 6 ) {
+            System.err.print("Usage: Tcp <server> <port> <file> <rate> <numrecords> (<append-time-csv>)\n");
         } else {
             Tcp t = new Tcp(args[0], Integer.parseInt(args[1]));
-            t.sendFile(args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]), 0);
+            if (numargs == 5) t.sendFile(args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]), 0, false);
+            if (numargs == 6) t.sendFile(args[2], Integer.parseInt(args[3]), Integer.parseInt(args[4]), 0, Boolean.parseBoolean(args[5]));
             t.shutdown();
         }
-        
-//        for (int i=0; i< 1; i++) {
-//            Tcp tcp = new Tcp("d1.trinity.dev", 5565);
-//            tcp.sendFile("faa-stream.csv", 100000, 200000, 0);
-//            tcp.shutdown();
-//            
-//        }
-        
-        
+
         
     }
 }
