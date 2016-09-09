@@ -4,7 +4,7 @@
 # apt-get install python-httplib2
 
 # Run using python2
-# python2 get_results.py
+# python2 get_counts.py
 # The sha-bang is set for ubuntu 16.04
 
 # Windows

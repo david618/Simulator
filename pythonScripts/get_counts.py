@@ -6,7 +6,7 @@ import sys
 # apt-get install python-httplib2
 
 # Run using python2
-# python2 get_results.py
+# python2 get_counts.py
 # The sha-bang is set for ubuntu 16.04
 
 # Windows
@@ -98,11 +98,17 @@ for host in source_hosts:
         avgrate = 0
         avglatency = 0.0
 
+        numlat = len(latencies);
+
         while i < num:
 
-            print(str(i) + ":" + str(cnts[i]) + ":" + str(rates[i]) + ":" + str(latencies[i]))
+            if numlat == 0:
+                print(str(i) + ":" + str(cnts[i]) + ":" + str(rates[i]))
+            else:
+                print(str(i) + ":" + str(cnts[i]) + ":" + str(rates[i]) + ":" + str(latencies[i]))
             avgrate += cnts[i]/float(totalcnt)*rates[i]
-            avglatency += cnts[i]/float(totalcnt)*latencies[i]
+            if numlat > 0:
+                avglatency += cnts[i]/float(totalcnt)*latencies[i]
             i += 1
 
         source_rate += avgrate
@@ -142,10 +148,16 @@ for host in sink_hosts:
         avgrate = 0
         avglatency = 0.0
 
+        numlat = len(latencies);
+
         while i < num:
-            print(str(i) + ":" + str(cnts[i]) + ":" + str(rates[i]) + ":" + str(latencies[i]))
+            if numlat == 0:
+                print(str(i) + ":" + str(cnts[i]) + ":" + str(rates[i]))
+            else:
+                print(str(i) + ":" + str(cnts[i]) + ":" + str(rates[i]) + ":" + str(latencies[i]))
             avgrate += cnts[i]/float(totalcnt)*rates[i]
-            avglatency += cnts[i]/float(totalcnt)*latencies[i]
+            if numlat > 0:
+                avglatency += cnts[i]/float(totalcnt)*latencies[i]
             i += 1
 
         sink_rate += avgrate
