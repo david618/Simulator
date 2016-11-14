@@ -83,8 +83,8 @@ public class Http {
         StringEntity postingString = new StringEntity(line);
 
         httpPost.setEntity(postingString);
-        httpPost.setHeader("Content-type","plain/text");
-        //httpPost.setHeader("Content-type","application/json");
+        //httpPost.setHeader("Content-type","plain/text");
+        httpPost.setHeader("Content-type","application/json");
 
         HttpResponse resp = httpClient.execute(httpPost);
 
