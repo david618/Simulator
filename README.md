@@ -34,9 +34,9 @@ Usage: Kafka &lt;broker-list-or-hub-name&gt; &lt;topic&gt; &lt;file&gt; &lt;rate
 - The simulator tries to send <numrecords> at <rate> requested. 
 - If <burst-delay-ms> is specified the records are send in bursts ever <burst-delay-ms> milliseconds to achieve the desired rate. For example, if you request 10,000 e/s with a burst delay of 100; the simulator will send at max rate possible 1,000 events every 100 ms.  If not specified the results are sent one every 1/10,000 of a second. 
 
-The project includes simFile (http://davidssysadminnotes.blogspot.com/2016/07/create-flight-simulation-data.html).
+Details on how the simFile data (simFile*) in this project are covered in [Create Flight Simulation Data Blog Post](http://davidssysadminnotes.blogspot.com/2016/07/create-flight-simulation-data.html).
 
-The project includes Python scripts that can read and combine results where running tests in DCOS.  http://davidssysadminnotes.blogspot.com/2016/08/performance-testing-kafka-on-dcos.html 
+Several Python scripts were created to support gathering test results in DCOS.  Details on how these scripts were used are in the [Performance Testing Kafka on DCOS Blog Post](http://davidssysadminnotes.blogspot.com/2016/08/performance-testing-kafka-on-dcos.html)
 
 ## License
 
