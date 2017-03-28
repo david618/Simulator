@@ -42,6 +42,31 @@ Usage: Elasticsearch &lt;elastic-search-transports&gt; &lt;cluster-name&gt; &lt;
 
 Used to test sending data directly to Elasticsearch from a file.
 
+### com.esri.simulator.FeatureLayerSink
+
+$ java -cp Simulator-jar-with-dependencies.jar com.esri.simulator.FeatureLayerSink 
+Usage: FeatureLayerSink &lt;Feature-Layer&gt; (&lt;Seconds-Between-Samples&gt; Default 5 seconds)  
+
+Example:
+
+$ java -cp Simulator.jar com.esri.simulator.FeatureLayerSink http://dj52web.westus.cloudapp.azure.com/arcgis/rest/services/Hosted/FAA-Stream/FeatureServer/0
+
+- The code counts the number of features from the Feature-Layer
+- If no count change is detected it will wait
+- Each time change is detected a sample is added and output to the screen
+- After count stops increasing; least-square fit is used to calculate the rate of change 
+- Results are printed to the screen
+
+### com.esri.simulator.TcpSink
+
+$ java -cp target/Simulator-jar-with-dependencies.jar com.esri.simulator.TcpSink
+Usage: TcpSink <port-to-listen-on> 
+
+- Listens on the port-to-listen-on for TCP 
+- Counts features arriving 
+- Timer starts when first event arrives
+- After features stop arriving for 5 seconds the rate is calcuated and output to screen; then resets and starts listening again
+
 
 
 ### Notes
