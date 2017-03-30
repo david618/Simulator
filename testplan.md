@@ -119,7 +119,7 @@ Click Create Data Source
 Defaults work for rest.
 
 
-## Open Access to Everyone 
+## Open Access to Map and Feature Services
 From Portal 
 
 Click on My Content 
