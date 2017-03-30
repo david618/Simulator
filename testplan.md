@@ -142,9 +142,9 @@ Add tcp-text-in-faa-stream and bds-out-faa-stream-add and connect input to outpu
 
 Stop all the inputs, outputs, and services.
 
-## Run Sink
+## Run Tests
 
-### TcpSink
+### Tcp-NoOp-Tcp
 
 You'll need to terminals on the test server.
 
@@ -201,14 +201,118 @@ The resulting throughput is shown on TcpSink
 
 You should get the same count on the output.  The rate reflects the output or throughput of the service.  Note that at input Rate of 5,000 the throughput was 3,177.  
 
+Stop Output.
 
+Used Ctrl-C to stop TcpSink.
 
+### Tcp-NoOp-AddBDS
 
+NOTE: During testing you should only one run inputs, service, outputs that are being tested.
 
+Start FeatureLayerSink
 
+<pre>
+$ cd ~/Simulator
+$ java -cp target/Simulator.jar com.esri.simulator.FeatureLayerSink
+Usage: FeatureLayerSink &lt;Feature-Layer&gt; (&lt;Seconds-Between-Samples&gt; Default 5 seconds) 
+</pre>
 
-FeatureLayerSink
+This tool call the feature service and returns the count every few seconds (default is 5). Self signed certs are OK; however, the cert must match the host name. I added dj32web.westus.cloudapp.azure.com to hosts file on the test server associating it's this name to the private IP. NOTE: I might be able to change the code to ignore the cert; but for now you have to add an entry to hosts and use 6443.
 
-## Run Simulation
-Tcp
+<pre>
+$ java -cp target/Simulator.jar com.esri.simulator.FeatureLayerSink https://dj32ags.westus.cloudapp.azure.com:6443/arcgis/rest/services/Hosted/FAA-Stream-Add/FeatureServer/0
+</pre>
 
+The sink starts and checks the count every 5 seconds. If it sees count changing it will start collecting samples.
+
+On Simulator terminal start a Simulation.
+<pre>
+$ java -cp target/Simulator.jar com.esri.simulator.Tcp dj32ags 5565 faa-stream.csv 1000 10000
+$ java -cp target/Simulator.jar com.esri.simulator.Tcp dj32ags 5565 faa-stream.csv 1000 100000
+</pre>
+
+On the Sink Terminal you'll see output.
+
+<pre>
+1,1490885417792,1190
+2,1490885422821,10000
+Removing: 1490885422821,10000
+Not enough samples to calculate rate. 
+1,1490885462974,14534
+2,1490885468014,18575
+3,1490885473036,24208
+4,1490885478058,28951
+5,1490885483075,34244
+6,1490885488089,39216
+7,1490885493112,44057
+8,1490885498184,49169
+9,1490885503214,53955
+10,1490885508230,58937
+11,1490885513247,63970
+12,1490885518271,69052
+13,1490885523305,73865
+14,1490885528322,78912
+15,1490885533340,83957
+16,1490885538373,88913
+17,1490885543529,93892
+18,1490885548564,98766
+19,1490885553639,103904
+20,1490885558681,109001
+21,1490885563704,110000
+Removing: 1490885563704,110000
+100000 , 990.14, 0.0015
+</pre>
+
+Notic on my first run I didn't send enough data.  The Sink does a count every 5 seconds. I've set the Sink to require a minimum of 5 samples. After count stop increasing the sink uses the samples to calculate the rate using Least Squares.  The throughput rate in this example was 990.14/s with a standard error of 0.0015.  Lower standard error implies a good fit to the data.
+
+The samples include the first point when count as changed. The last point is excluded when no change is detected.
+
+<pre>
+$ java -cp target/Simulator.jar com.esri.simulator.Tcp dj32ags 5565 faa-stream.csv 5000 100000
+100000,4821.600771456124
+$ java -cp target/Simulator.jar com.esri.simulator.Tcp dj32ags 5565 faa-stream.csv 5000 200000
+200000,4809.542131589073
+</pre>
+
+Resulting Sink Output
+<pre>
+1,1490885809630,110656
+2,1490885814658,117668
+3,1490885819689,126145
+4,1490885824726,133048
+5,1490885829754,141602
+6,1490885834797,154287
+7,1490885839826,169343
+8,1490885844877,182536
+9,1490885849898,194972
+10,1490885854917,209507
+11,1490885859946,210000
+Removing: 1490885859946,210000
+100000 , 2208.57
+1,1490885930225,212197
+2,1490885935264,219967
+3,1490885940307,226822
+4,1490885945364,235694
+5,1490885950525,243671
+6,1490885955586,250106
+7,1490885960629,258658
+8,1490885965678,263910
+9,1490885970716,272001
+10,1490885975744,286001
+11,1490885980822,299337
+12,1490885985883,312985
+13,1490885990952,327556
+14,1490885996006,338110
+15,1490886001075,353667
+16,1490886006118,367553
+17,1490886011150,381927
+18,1490886016304,394289
+19,1490886021330,409528
+20,1490886026363,410000
+Removing: 1490886026363,410000
+200000 , 2177.58, 0.0737
+</pre>
+
+NOTE: The standard Error is not output unless there are more than 10 samples.
+
+As before if you drive at higher rates you'll notice the output is slower than the input.
