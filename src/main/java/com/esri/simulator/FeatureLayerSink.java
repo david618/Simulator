@@ -58,16 +58,19 @@ public class FeatureLayerSink {
             SSLContext sslContext = SSLContext.getInstance("SSL");
 
             sslContext.init(null, new TrustManager[]{new X509TrustManager() {
+                @Override
                 public X509Certificate[] getAcceptedIssuers() {
                     System.out.println("getAcceptedIssuers =============");
                     return null;
                 }
 
+                @Override
                 public void checkClientTrusted(X509Certificate[] certs,
                         String authType) {
                     System.out.println("checkClientTrusted =============");
                 }
 
+                @Override
                 public void checkServerTrusted(X509Certificate[] certs,
                         String authType) {
                     System.out.println("checkServerTrusted =============");
