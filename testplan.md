@@ -316,3 +316,7 @@ Removing: 1490886026363,410000
 NOTE: The standard Error is not output unless there are more than 10 samples.
 
 As before if you drive at higher rates you'll notice the output is slower than the input.
+
+## Summary
+These same tools can be used for your test data and services. 
+
