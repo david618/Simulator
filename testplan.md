@@ -217,10 +217,10 @@ $ java -cp target/Simulator.jar com.esri.simulator.FeatureLayerSink
 Usage: FeatureLayerSink &lt;Feature-Layer&gt; (&lt;Seconds-Between-Samples&gt; Default 5 seconds) 
 </pre>
 
-This tool call the feature service and returns the count every few seconds (default is 5). Self signed certs are OK; however, the cert must match the host name. I added dj32web.westus.cloudapp.azure.com to hosts file on the test server associating it's this name to the private IP. NOTE: I might be able to change the code to ignore the cert; but for now you have to add an entry to hosts and use 6443.
+This tool call the feature service and returns the count every few seconds (default is 5). 
 
 <pre>
-$ java -cp target/Simulator.jar com.esri.simulator.FeatureLayerSink https://dj32ags.westus.cloudapp.azure.com:6443/arcgis/rest/services/Hosted/FAA-Stream-Add/FeatureServer/0
+$ java -cp target/Simulator.jar com.esri.simulator.FeatureLayerSink https://dj32ags:6443/arcgis/rest/services/Hosted/FAA-Stream-Add/FeatureServer/0
 </pre>
 
 The sink starts and checks the count every 5 seconds. If it sees count changing it will start collecting samples.
