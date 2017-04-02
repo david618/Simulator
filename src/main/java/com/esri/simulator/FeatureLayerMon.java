@@ -32,15 +32,15 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.SingleClientConnManager;
 import org.json.JSONObject;
-import sun.security.validator.ValidatorException;
+
 
 /**
  *
  * @author david
  */
-public class FeatureLayerSink {
+public class FeatureLayerMon {
 
-    public FeatureLayerSink(String featureLayerURL, int sampleRateSec) {
+    public FeatureLayerMon(String featureLayerURL, int sampleRateSec) {
 
         try {
 
@@ -201,14 +201,14 @@ public class FeatureLayerSink {
          */
         int numargs = args.length;
 
-        //FeatureLayerSink t = new FeatureLayerSink("https://ec2-52-14-149-22.us-east-2.compute.amazonaws.com:6443/arcgis/rest/services/Hosted/FAA-Stream/FeatureServer/0");
-        //FeatureLayerSink t = new FeatureLayerSink("https://portal.example.com/arcgis/rest/services/Hosted/FAA-Stream/FeatureServer/0");
+        //FeatureLayerMon t = new FeatureLayerMon("https://ec2-52-14-149-22.us-east-2.compute.amazonaws.com:6443/arcgis/rest/services/Hosted/FAA-Stream/FeatureServer/0");
+        //FeatureLayerMon t = new FeatureLayerMon("https://portal.example.com/arcgis/rest/services/Hosted/FAA-Stream/FeatureServer/0");
         if (numargs != 1 && numargs != 2) {
-            System.err.print("Usage: FeatureLayerSink <Feature-Layer> (<Seconds-Between-Samples> Default 5 seconds) \n");
+            System.err.print("Usage: FeatureLayerMon <Feature-Layer> (<Seconds-Between-Samples> Default 5 seconds) \n");
         } else if (numargs == 1) {
-            FeatureLayerSink t = new FeatureLayerSink(args[0], 5);
+            FeatureLayerMon t = new FeatureLayerMon(args[0], 5);
         } else {
-            FeatureLayerSink t = new FeatureLayerSink(args[0], Integer.parseInt(args[1]));
+            FeatureLayerMon t = new FeatureLayerMon(args[0], Integer.parseInt(args[1]));
         }
 
     }
