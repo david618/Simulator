@@ -23,6 +23,7 @@ public class TcpSink {
                 Socket cs = ss.accept();
                 TcpSinkServer ts = new TcpSinkServer(cs, calcLatency);
                 ts.start();
+                System.out.println("HERE");
             }
             
         } catch (Exception e) {
@@ -49,14 +50,15 @@ public class TcpSink {
          */
         int numargs = args.length;
 
-        if (numargs != 1) {
-            System.err.print("Usage: TcpSink <port-to-listen-on> \n");
+//        new TcpSink(5565, false);
+        if (numargs != 1 && numargs != 2) {
+            System.err.print("Usage: TcpSink <port-to-listen-on> (<boolean-calc-latency>)\n");
         } else {
 
             if (numargs == 1) {
-                TcpSink t = new TcpSink(Integer.parseInt(args[0]), false);
+                new TcpSink(Integer.parseInt(args[0]), false);
             } else {
-                TcpSink t = new TcpSink(Integer.parseInt(args[0]), Boolean.parseBoolean(args[1]));
+                new TcpSink(Integer.parseInt(args[0]), Boolean.parseBoolean(args[1]));
             }            
             
             

@@ -48,13 +48,6 @@ public class FeatureLayerMon {
 
             URL url = new URL(strURL);
 
-            // Support for https
-//            SSLContextBuilder builder = new SSLContextBuilder();
-//            builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
-//            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
-//                    builder.build());
-//            CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(
-//                    sslsf).build();
             SSLContext sslContext = SSLContext.getInstance("SSL");
 
             sslContext.init(null, new TrustManager[]{new X509TrustManager() {
@@ -77,13 +70,7 @@ public class FeatureLayerMon {
                 }
             }}, new SecureRandom());
 
-//            SSLSocketFactory sf = new SSLSocketFactory(sslContext);
-//            Scheme httpsScheme = new Scheme("https", 443, sf);
-//            SchemeRegistry schemeRegistry = new SchemeRegistry();
-//            schemeRegistry.register(httpsScheme);
-//
-//            ClientConnectionManager cm = new SingleClientConnManager(schemeRegistry);
-//            HttpClient httpclient = new DefaultHttpClient(cm);
+
             CloseableHttpClient httpclient = HttpClients
                     .custom()
                     .setSSLContext(sslContext)
@@ -141,10 +128,10 @@ public class FeatureLayerMon {
                         int cnt = cnt2 - stcnt;
                         double rcvRate = regression.getSlope() * 1000;  // converting from ms to seconds
 
-                        if (numSamples > 10) {
+                        if (numSamples > 5) {
                             double rateStdErr = regression.getSlopeStdErr();
                             System.out.format("%d , %.2f, %.4f\n", cnt, rcvRate, rateStdErr);
-                        } else if (numSamples >= 5) {
+                        } else if (numSamples >= 3) {
                             System.out.format("%d , %.2f\n", cnt, rcvRate);
                         } else {
                             System.out.println("Not enough samples to calculate rate. ");
