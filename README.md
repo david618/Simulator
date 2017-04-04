@@ -4,8 +4,6 @@ Reads simulation file into memory then sends line by line to the specified host 
 
 ## Installation
 
-Originally created in NetBeans 8.1; recent work in IntelliJ.
-
 Tested with maven 3.3.9
 $ mvn install 
 
