@@ -111,7 +111,7 @@ public class KafkaTopicMon {
     String topic;
     KafkaConsumer<String, String> consumer;
 
-    public KafkaTopicMon(String brokers, String topic) {
+    public KafkaTopicMon(String brokers, String topic, long sampleRateMS) {
 
         
         
@@ -136,7 +136,7 @@ public class KafkaTopicMon {
             consumer = new KafkaConsumer<>(props);
 
             timer = new Timer();
-            timer.schedule(new CheckCount(), 0, 5000);
+            timer.schedule(new CheckCount(), 0, sampleRateMS);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -147,10 +147,14 @@ public class KafkaTopicMon {
     public static void main(String[] args) {
         
         int numargs = args.length;
-        if (numargs != 2) {
-            System.err.print("Usage: KakfaTopicMon brokers topic\n");       
+        if (numargs != 2 && numargs != 3) {
+            System.err.print("Usage: KakfaTopicMon <brokers> <topic> (<sampleRateMS>)\n");       
         } else {
-            new KafkaTopicMon(args[0], args[1]);
+            if (numargs == 2) {
+                new KafkaTopicMon(args[0], args[1], 5000);
+            } else {
+                new KafkaTopicMon(args[0], args[1], Integer.parseInt(args[2]));
+            }
         }        
 
     }

@@ -174,7 +174,7 @@ public class ElasticIndexMon {
     String user;
     String userpw;
 
-    public ElasticIndexMon(String esServer, String index, String user, String userpw) {
+    public ElasticIndexMon(String esServer, String index, String user, String userpw, long sampleRateMS) {
 
 //        esServer = "ags:9220";
 //        index = "FAA-Stream/FAA-Stream";
@@ -185,7 +185,7 @@ public class ElasticIndexMon {
         this.user = user;
         this.userpw = userpw;
         timer = new Timer();
-        timer.schedule(new CheckCount(), 0, 10000);
+        timer.schedule(new CheckCount(), 0, sampleRateMS);
     }
 
     public static void main(String[] args) {
@@ -193,12 +193,14 @@ public class ElasticIndexMon {
 
         //FeatureLayerMon t = new FeatureLayerMon("https://ec2-52-14-149-22.us-east-2.compute.amazonaws.com:6443/arcgis/rest/services/Hosted/FAA-Stream/FeatureServer/0");
         //FeatureLayerMon t = new FeatureLayerMon("https://portal.example.com/arcgis/rest/services/Hosted/FAA-Stream/FeatureServer/0");
-        if (numargs != 2 && numargs != 4) {
-            System.err.print("Usage: ElasticIndexMon <ElasticsearchServerPort> <Index/Type> (<username> <password>) \n");
+        if (numargs != 2 && numargs != 4 && numargs != 5) {
+            System.err.print("Usage: ElasticIndexMon <ElasticsearchServerPort> <Index/Type> (<username> <password> <sampleRateMS>) \n");
         } else if (numargs == 2) {
-            ElasticIndexMon t = new ElasticIndexMon(args[0], args[1], "", "");
+            ElasticIndexMon t = new ElasticIndexMon(args[0], args[1], "", "", 5000);
+        } else if (numargs == 4) {
+            ElasticIndexMon t = new ElasticIndexMon(args[0], args[1], args[2], args[3], 5000);
         } else {
-            ElasticIndexMon t = new ElasticIndexMon(args[0], args[1], args[2], args[3]);
+            ElasticIndexMon t = new ElasticIndexMon(args[0], args[1], args[2], args[3], Integer.parseInt(args[4]));
         }
 
     }
