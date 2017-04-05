@@ -23,13 +23,24 @@ You should be able to connect to GeoEvent Manager, Portal, and ArcGIS Server as 
 
 ## Setup Test Server
 
-### Install some packages
+### Install some Softwaree
+
+*** Linux ***
 <pre>
 # yum -y install epel-release
 # yum -y install git
 # yum -y install java-1.8.0-openjdk
 # yum -y install maven
 </pre>
+
+*** Windows ***
+- Install [Java](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+- Install [Git](https://git-scm.com/download/win) 
+  -- You can use defaults during install
+- Install [Maven](https://maven.apache.org/download.cgi)
+  -- Unzip the Binary zip archive and unzip
+  -- Update your Path (e.g.  D:\apache-maven-3.3.9\bin)
+
 
 ### Clone Simulator
 <pre>
@@ -50,13 +61,16 @@ $ cd ~
 $ curl -O http://apache.org/dist/jmeter/binaries/apache-jmeter-3.1.tgz
 </pre>
 
+*** Windows ***
+Download [JMeter zip](http://jmeter.apache.org/download_jmeter.cgi)
+
 Verify signature
 <pre>
 $ md5sum apache-jmeter-3.1.tgz
 f439864f8f14e38228fee5fab8d912b0  apache-jmeter-3.1.tgz
 </pre>
 
-Untar
+Untar or Unzip
 <pre>
 $ tar xvzf apache-jmeter-3.1.tgz
 </pre>
