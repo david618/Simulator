@@ -185,7 +185,7 @@ public class ElasticIndexMon {
         this.user = user;
         this.userpw = userpw;
         timer = new Timer();
-        timer.schedule(new CheckCount(), 0, 5000);
+        timer.schedule(new CheckCount(), 0, 10000);
     }
 
     public static void main(String[] args) {
@@ -196,7 +196,7 @@ public class ElasticIndexMon {
         if (numargs != 2 && numargs != 4) {
             System.err.print("Usage: ElasticIndexMon <ElasticsearchServerPort> <Index/Type> (<username> <password>) \n");
         } else if (numargs == 2) {
-            ElasticIndexMon t = new ElasticIndexMon(args[0], args[1], null, null);
+            ElasticIndexMon t = new ElasticIndexMon(args[0], args[1], "", "");
         } else {
             ElasticIndexMon t = new ElasticIndexMon(args[0], args[1], args[2], args[3]);
         }
