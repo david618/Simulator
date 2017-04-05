@@ -6,7 +6,6 @@ import time
 
 host="m1:8080"
 hubname="hub01"
-topic="websats-in"
 
 debug=False
 
