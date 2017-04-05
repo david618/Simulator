@@ -23,7 +23,7 @@ You should be able to connect to GeoEvent Manager, Portal, and ArcGIS Server as 
 
 ## Setup Test Server
 
-### Install some Softwaree
+### Install some Software
 
 *** Linux ***
 <pre>
