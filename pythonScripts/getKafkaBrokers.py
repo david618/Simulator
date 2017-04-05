@@ -1,16 +1,21 @@
 
 import json
 import urllib2
-import subprocess
-import time
+import sys
 
 host="m1:8080"
 hubname="hub01"
 
-debug=False
+debug=True
 
 if __name__ == '__main__':
 
+
+    numargs = len(sys.argv)
+    if debug: print("numargs=" + str(numargs))
+
+    if (numargs == 2):
+        hubname = sys.argv[1]
     strUrl = "http://" + host + "/v2/apps/" + hubname
     if debug: print(strUrl)
     url = urllib2.urlopen(strUrl)
@@ -32,4 +37,3 @@ if __name__ == '__main__':
     broker=str(data2['address'][0])
 
     print("Broker: " + broker)
-
