@@ -58,8 +58,32 @@ $ java -cp Simulator.jar com.esri.simulator.FeatureLayerMon http://dj52web.westu
 ### com.esri.simulator.ElasticIndexMon
 Monitors a Elasticsearch Index count and measures and reports rate of change in count.
 
+$ java -cp target/Simulator.jar com.esri.simulator.ElasticIndexMon
+Usage: ElasticIndexMon &lt;ElasticsearchServerPort&gt; &lt;Index/Type&gt; (&lt;username&gt; &lt;password> &lt;sampleRateMS&gt;)
+
+Example:
+
+$ java -cp target/Simulator.jar com.esri.simulator.ElasticIndexMon 172.17.2.5:9200 satellites/satellites "" "" 60000
+
+- Elasticsearch running on 172.17.2.5 on default port of 9200
+- The index name is satellites and so is the type (satellites/satellites)
+- The quotes are because I wanted to enter 60000 ms (as the sample rate)
+
+*** NOTE: For GeoEvent you can get the username/password for the spatiotemportal datastore using datastore tool "listadmins". ***
+
+
 ### com.esri.simulator.KafkaTopicMon
 Monitors a Kafka Topic count and measures and reports rate of change in count.
+
+$ java -cp target/Simulator.jar com.esri.simulator.KafkaTopicMon
+Usage: KakfaTopicMon &lt;brokers&gt; &lt;topic&gt; (&lt;sampleRateMS&gt;)
+
+$ java -cp target/Simulator.jar com.esri.simulator.KafkaTopicMon 172.17.2.5:9528 satellites-in 60000
+
+- Connects to Kafka on 172.17.2.5 on port 9528 
+- Gets counts for the satellites-in topic
+- The sample rate is set to 60,000 ms which is 60 seconds
+
 
 ### com.esri.simulator.TcpSink
 
