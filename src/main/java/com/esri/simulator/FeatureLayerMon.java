@@ -103,10 +103,18 @@ public class FeatureLayerMon {
 
                     } else if (cnt1 > cnt2) {
                         // Increase number of samples
-                        numSamples += 1;
+                        numSamples += 1;                                                                                             
+
+                        if (numSamples > 2) {
+                            double rcvRate = regression.getSlope() * 1000;
+                            System.out.println(numSamples + "," + t1 + "," + cnt1 + "," + rcvRate);
+                        } else {
+                            System.out.println(numSamples + "," + t1 + "," + cnt1);
+                        }                        
                         // Add to Linear Regression
                         regression.addData(t1, cnt1);
-                        System.out.println(numSamples + "," + t1 + "," + cnt1);
+                        
+                        
 
                     } else if (cnt1 == cnt2 && numSamples > 0) {
                         numSamples -= 1;
@@ -120,7 +128,7 @@ public class FeatureLayerMon {
                         if (numSamples > 5) {
                             double rateStdErr = regression.getSlopeStdErr();
                             System.out.format("%d , %.2f, %.4f\n", cnt, rcvRate, rateStdErr);
-                        } else if (numSamples >= 3) {
+                        } else if (numSamples >= 2) {
                             System.out.format("%d , %.2f\n", cnt, rcvRate);
                         } else {
                             System.out.println("Not enough samples to calculate rate. ");
