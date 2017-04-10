@@ -18,6 +18,17 @@ import org.json.JSONArray;
 //@WebSocket(maxBinaryMessageSize = 1024 * 1024)
 public class WebSocketMessage implements WebSocket.OnTextMessage {
 
+    boolean printmessages;
+    int sampleEvery;
+
+    public WebSocketMessage(int sampleEvery, boolean printmessages) {
+        this.printmessages = printmessages;
+        this.sampleEvery = sampleEvery;
+    }
+    
+    
+    
+    
     class resetCounts extends TimerTask {
 
         @Override
@@ -54,9 +65,6 @@ public class WebSocketMessage implements WebSocket.OnTextMessage {
     @Override
     public void onMessage(String s) {
         cnt++;
-//        if (cnt % 1000 == 0) System.out.println(cnt);
-//        timer.cancel();
-//        timer.schedule(new resetCounts(), 0, 5000);
 
         if (cnt % 1000 == 0) {
             long t = System.currentTimeMillis();
@@ -69,15 +77,10 @@ public class WebSocketMessage implements WebSocket.OnTextMessage {
                 System.out.println(numSamples + "," + t + "," + cnt);
             }
         }
-        //System.out.println(cnt);
-//        System.out.println(s);
-//        JSONArray array = new JSONArray(s);
-//        cnt += array.length();
-//        System.out.println(cnt);
+        if (printmessages) {
+            System.out.println(s);
+        }
 
-        //if (cnt % 1000 == 0) System.out.println(cnt);
-        //System.out.println(data);
-        //if (cnt >= numFeatures) this.con.close();
     }
 
     @Override
