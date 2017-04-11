@@ -87,7 +87,7 @@ $ java -cp target/Simulator.jar com.esri.simulator.KafkaTopicMon 172.17.2.5:9528
 
 ### com.esri.simulator.TcpSink
 
-$ java -cp target/Simulator-jar-with-dependencies.jar com.esri.simulator.TcpSink
+$ java -cp target/Simulator.jar com.esri.simulator.TcpSink
 Usage: TcpSink <port-to-listen-on> 
 
 - Listens on the port-to-listen-on for TCP 
@@ -95,6 +95,23 @@ Usage: TcpSink <port-to-listen-on>
 - Timer starts when first event arrives
 - After features stop arriving for 5 seconds the rate is calcuated and output to screen; then resets and starts listening again
 
+### com.esri.simulator.WebSocketSink
+
+$ java -cp target/Simulator.jar com.esri.simulator.WebSocketSink
+Usage: WebSocketSink &lt;ws-url> (&lt;timeout-ms&gt;) (&lt;sample-every-N-records&gt;) (&lt;display-messages&gt;)
+Defaults: timeout-ms:10000, sample-every-N-records:1000, display-messages:false
+
+$ java -cp target/Simulator.jar com.esri.simulator.WebSocketSink  ws://localhost:8080/websats/SatStream/subscribe
+- Connects to the websocket 
+- Uses default timeout-ms; Waits for data; after 10000 ms (10s) disconnect and reconnects
+- The default sample rate is every 1,000 records
+- The messages are not displayed
+
+$ java -cp target/Simulator.jar com.esri.simulator.WebSocketSink  ws://localhost:8080/websats/SatStream/subscribe 5000 100 true
+- Connects to the websocket 
+- Waits for data; after 5000 ms (5s) disconnect and reconnects
+- Sample rate is 100 samples (This would be better for slow rates)
+- The messages are displayed (This is useful just to see the messages; but should not be used to measure rates)
 
 
 ### Notes
