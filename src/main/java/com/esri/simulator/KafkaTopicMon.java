@@ -41,7 +41,7 @@ public class KafkaTopicMon {
             numSamples = 0;
             t1 = 0L;
             t2 = 0L;
-            
+
         }
 
         @Override
@@ -65,9 +65,17 @@ public class KafkaTopicMon {
             } else if (cnt1 > cnt2) {
                 // Increase number of samples
                 numSamples += 1;
+                
+                if (numSamples > 2) {
+                    double rcvRate = regression.getSlope() * 1000;
+                    System.out.println(numSamples + "," + t1 + "," + cnt1 + "," + rcvRate);
+                } else {
+                    System.out.println(numSamples + "," + t1 + "," + cnt1);
+                }
+
                 // Add to Linear Regression
                 regression.addData(t1, cnt1);
-                System.out.println(numSamples + "," + t1 + "," + cnt1);
+
 
             } else if (cnt1 == cnt2 && numSamples > 0) {
                 numSamples -= 1;
@@ -101,7 +109,6 @@ public class KafkaTopicMon {
             cnt2 = cnt1;
             t2 = t1;
 
-            
         }
 
     }
@@ -113,13 +120,10 @@ public class KafkaTopicMon {
 
     public KafkaTopicMon(String brokers, String topic, long sampleRateMS) {
 
-        
-        
 //        this.brokers = "k1:9092";
 //        this.topic = "satellites";
         this.brokers = brokers;
         this.topic = topic;
-
 
         try {
             Properties props = new Properties();
@@ -145,17 +149,15 @@ public class KafkaTopicMon {
     }
 
     public static void main(String[] args) {
-        
+
         int numargs = args.length;
         if (numargs != 2 && numargs != 3) {
-            System.err.print("Usage: KakfaTopicMon <brokers> <topic> (<sampleRateMS>)\n");       
+            System.err.print("Usage: KakfaTopicMon <brokers> <topic> (<sampleRateMS>)\n");
+        } else if (numargs == 2) {
+            new KafkaTopicMon(args[0], args[1], 5000);
         } else {
-            if (numargs == 2) {
-                new KafkaTopicMon(args[0], args[1], 5000);
-            } else {
-                new KafkaTopicMon(args[0], args[1], Integer.parseInt(args[2]));
-            }
-        }        
+            new KafkaTopicMon(args[0], args[1], Integer.parseInt(args[2]));
+        }
 
     }
 

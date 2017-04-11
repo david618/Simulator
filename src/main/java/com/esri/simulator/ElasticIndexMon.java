@@ -25,7 +25,6 @@ import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -124,9 +123,15 @@ public class ElasticIndexMon {
                 } else if (cnt1 > cnt2) {
                     // Increase number of samples
                     numSamples += 1;
+                    if (numSamples > 2) {
+                        double rcvRate = regression.getSlope() * 1000;
+                        System.out.println(numSamples + "," + t1 + "," + cnt1 + "," + rcvRate);
+                    } else {
+                        System.out.println(numSamples + "," + t1 + "," + cnt1);
+                    }
+
                     // Add to Linear Regression
                     regression.addData(t1, cnt1);
-                    System.out.println(numSamples + "," + t1 + "," + cnt1);
 
                 } else if (cnt1 == cnt2 && numSamples > 0) {
                     numSamples -= 1;
