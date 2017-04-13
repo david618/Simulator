@@ -55,7 +55,7 @@ public class TcpSink {
         int numargs = args.length;
 
         if (numargs < 1 || numargs > 3 ) {
-            System.err.print("Usage: TcpSink <ws-url> (<sample-every-N-records/1000>) (<display-messages/false>)\n");            
+            System.err.print("Usage: TcpSink <port-to-listen-on> (<sample-every-N-records/1000>) (<display-messages/false>)\n");            
         } else {
             WebSocketSink a = new WebSocketSink();
             
