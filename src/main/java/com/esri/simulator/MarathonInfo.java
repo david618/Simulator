@@ -1,7 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * This Class was used to get Kafka Info given the app name (e.g. hub01)
+ * 
+ * NOTE: This needs to be updated. I have another version in rt project that is more current. Both could use an update to get rid of SSLContextBuilder.
+ * 
+ * Creator: David Jennings
+ * 
  */
 package com.esri.simulator;
 

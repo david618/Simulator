@@ -1,8 +1,10 @@
-/*
-Listen on a port and start timer when first message is received
-Count messages
-After a pause of 10 seconds (no message)
-Output Count, Rate 
+/**
+ * Listens on TCP Port for messages. 
+ * Counts Messages based on value of sampleEveryMessages adds a point to the linear regresssion
+ * After collecting three samples it will output the rate.
+ * After 10 second pause the count and regression are reset.
+ * 
+ * Creator: David Jennings
  */
 package com.esri.simulator;
 
@@ -15,15 +17,17 @@ import java.net.Socket;
  */
 public class TcpSink {
 
-    public TcpSink(Integer port, boolean calcLatency) {
+    public TcpSink(Integer port, Integer sampleEveryNSecs, boolean displaymessages) {
         try {
             ServerSocket ss = new ServerSocket(port);
             
+            System.out.println("After starting this; create or restart the GeoEvent service.");
+            System.out.println("Once connected you see a 'Listening' message");
+            
             while (true) {
                 Socket cs = ss.accept();
-                TcpSinkServer ts = new TcpSinkServer(cs, calcLatency);
+                TcpSinkServer ts = new TcpSinkServer(cs, sampleEveryNSecs, displaymessages);
                 ts.start();
-                System.out.println("HERE");
             }
             
         } catch (Exception e) {
@@ -50,17 +54,23 @@ public class TcpSink {
          */
         int numargs = args.length;
 
-//        new TcpSink(5565, false);
-        if (numargs != 1 && numargs != 2) {
-            System.err.print("Usage: TcpSink <port-to-listen-on> (<boolean-calc-latency>)\n");
+        if (numargs < 1 || numargs > 3 ) {
+            System.err.print("Usage: TcpSink <ws-url> (<sample-every-N-records/1000>) (<display-messages/false>)\n");            
         } else {
-
-            if (numargs == 1) {
-                new TcpSink(Integer.parseInt(args[0]), false);
-            } else {
-                new TcpSink(Integer.parseInt(args[0]), Boolean.parseBoolean(args[1]));
-            }            
+            WebSocketSink a = new WebSocketSink();
             
+            switch (numargs) {
+                case 1:
+                    new TcpSink(Integer.parseInt(args[0]), 1000, false);              
+                    break;
+                case 2:
+                    new TcpSink(Integer.parseInt(args[0]), Integer.parseInt(args[1]), false);               
+                    break;
+                default:                    
+                    new TcpSink(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Boolean.parseBoolean(args[2]));                    
+                    break;
+            }
+                    
             
 
         }

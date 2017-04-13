@@ -1,32 +1,24 @@
 /*
- * Sends events from a file to TCP socket
+ * Sends lines of a text file to a HTTP Server using HTTP Post
+ * Lines are sent at a specified rate.
+ * 
+ * Creator: David Jennings
  */
 package com.esri.simulator;
 
 
-
+import java.io.BufferedReader;
+import java.io.FileReader;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContextBuilder;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 
-
-import javax.net.ssl.HttpsURLConnection;
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.Socket;
-import java.net.URL;
-import java.net.URLConnection;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 /**
  *
@@ -35,9 +27,8 @@ import java.util.Iterator;
 public class Http {
     private String url;
 
+    // Tell the server I'm Firefox
     private final String USER_AGENT = "Mozilla/5.0";
-
-    //private HttpURLConnection con = null;
 
     private HttpClient httpClient;
     private HttpPost httpPost;
@@ -47,23 +38,6 @@ public class Http {
 
 
         this.url = url;
-        //URL obj = new URL(url);
-
-        // Support for https
-//        SSLContextBuilder builder = new SSLContextBuilder();
-//        builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
-//        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
-//                builder.build());
-//        CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(
-//                sslsf).build();
-
-//        con = (HttpURLConnection) obj.openConnection();
-//
-//        con.setRequestMethod("POST");
-//        con.setRequestProperty("User-Agent", USER_AGENT);
-//        con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-//
-//        con.setDoOutput(true);
 
         httpClient = HttpClientBuilder.create().build();
 
@@ -74,12 +48,6 @@ public class Http {
 
     private void postLine(String line) throws Exception {
 
-//        httpClient = HttpClientBuilder.create().build();
-//
-//        httpPost = new HttpPost(url);
-
-
-
         StringEntity postingString = new StringEntity(line);
 
         httpPost.setEntity(postingString);
@@ -89,42 +57,8 @@ public class Http {
         HttpResponse resp = httpClient.execute(httpPost);
 
         httpPost.releaseConnection();
-
-//        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-//        wr.writeBytes(line);
-//        wr.flush();
-//        wr.close();
-//
-//        int responseCode = con.getResponseCode();
-
-//        BufferedReader in = new BufferedReader(
-//                new InputStreamReader(con.getInputStream()));
-//        String inputLine;
-//        StringBuffer response = new StringBuffer();
-//
-//        while ((inputLine = in.readLine()) != null) {
-//            response.append(inputLine);
-//        }
-//        in.close();
-//
-//        //print result
-//        System.out.println(response.toString());
-//        System.out.println("Response Code : " + responseCode);
-
-
     }
 
-    
-    public void shutdown() {
-        try {
-//            con.disconnect();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-    }
-    
     
     /**
      * 
@@ -287,7 +221,9 @@ public class Http {
 
         int numargs = args.length;
         if (numargs != 4 && numargs != 5 ) {
-            System.err.print("Usage: Http <url> <file> <rate> <numrecords> (<append-time-csv>)\n");
+            // append append time option was added to support end-to-end latency; I used it for Trinity testing but it's a little confusing
+            //System.err.print("Usage: Http <url> <file> <rate> <numrecords> (<append-time-csv>)\n");
+            System.err.print("Usage: Http <url> <file> <rate> <numrecords> \n");
         } else {
             String url = args[0];
             String file = args[1];
@@ -300,7 +236,7 @@ public class Http {
             Http t = new Http(url);
             t.sendFile(file, rate, numrecords, 0, appendTime);
 
-            t.shutdown();
+
         }
 
         

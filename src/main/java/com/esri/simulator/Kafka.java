@@ -1,7 +1,8 @@
 /*
-
- * Sends events from a tab delimited directly to Kafka
-
+ * Sends lines of a text file to a Kafka Topic 
+ * Lines are sent at a specified rate.
+ * 
+ * Creator: David Jennings
 */
 package com.esri.simulator;
 

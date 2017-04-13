@@ -1,8 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+
+/**
+ * Monitors an Kafka Topic
+ * Periodically does a count and when count is changing collects samples.
+ * After three samples are made outputs rates based on linear regression.
+ * After counts stop changing outputs the final rate and last estimated rate.
+ * 
+ * Creator: David Jennings
+ * 
  */
+
 package com.esri.simulator;
 
 import java.util.Collections;

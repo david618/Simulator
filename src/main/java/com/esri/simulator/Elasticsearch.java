@@ -1,8 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/** 
+ * Sends features from a file directly to Elasticsearch.
+ * Each line of input file should be json to be send.
+ * The tool sends at a specified rate
+ * Supports an optional parameter to bulk load; this sends the specified number of items in a group)
+ * 
+ * Creator: David Jennings
+ * 
  */
+
 package com.esri.simulator;
 
 import java.io.BufferedReader;
@@ -15,7 +20,6 @@ import java.util.Iterator;
 import java.util.UUID;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
