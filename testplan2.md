@@ -23,61 +23,8 @@ You should be able to connect to GeoEvent Manager, Portal, and ArcGIS Server as 
 
 ## Setup Test Server
 
-### Install some Software
+Here are insructions for [Setup Test Server](SetupTestServer.md)
 
-*** Linux ***
-<pre>
-# yum -y install epel-release
-# yum -y install git
-# yum -y install java-1.8.0-openjdk
-# yum -y install maven
-</pre>
-
-*** Windows ***
-- Install [Java](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-- Install [Git](https://git-scm.com/download/win) 
-  -- You can use defaults during install
-- Install [Maven](https://maven.apache.org/download.cgi)
-  -- Unzip the Binary zip archive and unzip
-  -- Update your Path (e.g.  D:\apache-maven-3.3.9\bin)
-
-
-### Clone Simulator
-<pre>
-$ git clone https://github.com/david618/Simulator
-</pre>
-
-Build Simulator
-<pre>
-$ cd Simulator
-$ mvn install
-</pre>
-Should end with "BUILD SUCCESS"
-
-### Install JMeter (optional)
-To support Map/Feature Service Testing
-<pre>
-$ cd ~
-$ curl -O http://apache.org/dist/jmeter/binaries/apache-jmeter-3.1.tgz
-</pre>
-
-*** Windows ***
-Download [JMeter zip](http://jmeter.apache.org/download_jmeter.cgi)
-
-Verify signature
-<pre>
-$ md5sum apache-jmeter-3.1.tgz
-f439864f8f14e38228fee5fab8d912b0  apache-jmeter-3.1.tgz
-</pre>
-
-Untar or Unzip
-<pre>
-$ tar xvzf apache-jmeter-3.1.tgz
-</pre>
-
-<pre>
-$ git clone https://github.com/david618/agsservicetesting
-</pre>
 
 ## Create GeoEvent Input
 
