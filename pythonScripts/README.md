@@ -7,7 +7,7 @@ Converts the simFile data from csv format to json.
 
 Takes two parameters the source app and the sink app name.  The script uses Marathon rest calls to get the ip's and port's then calls the /count for each source/sink to gather count/rates/latency information.
 
-**NOTE** You need to install the python-httplib2 package.  For centos: # yum -y install python-httplib2
+**NOTE:** You need to install the python-httplib2 package.  For centos: # yum -y install python-httplib2
 
 The final line output the number of events read by the source(s), rate at which the source(s) processed the events, the number of events read by the sink(s), the rate at which the sink(s) processed the events.
 
