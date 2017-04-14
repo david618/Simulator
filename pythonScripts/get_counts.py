@@ -3,7 +3,12 @@ import httplib2
 import sys
 
 # requires install python-httplib2
+
+# Ubuntu
 # apt-get install python-httplib2
+
+# CentOS
+# yum install python-httplib2
 
 # Run using python2
 # python2 get_counts.py
@@ -30,7 +35,7 @@ try:
         # Try to get tasks for source
         conn = httplib2.Http(timeout=1)
 
-        resp, resp_body = conn.request("http://master.mesos/marathon/v2/apps/" + source_name)
+        resp, resp_body = conn.request("http://master.mesos:8080/v2/apps/" + source_name)
 
         data = json.loads(resp_body)        
 
@@ -47,7 +52,7 @@ try:
         # Try to get tasks for source
         conn = httplib2.Http(timeout=1)
 
-        resp, resp_body = conn.request("http://master.mesos/marathon/v2/apps/" + sink_name)
+        resp, resp_body = conn.request("http://master.mesos:8080/v2/apps/" + sink_name)
 
         data = json.loads(resp_body)        
 
