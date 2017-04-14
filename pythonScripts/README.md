@@ -12,6 +12,21 @@ The rate is a weighted average of any results returned by the count. For example
 
 Weighted Average =  1000/1001000 * rate1 + 1000000/1001000 * rate2
 
+The services must be configured to use the system provided ports.  
+
+For service command use $PORT0
+
+<pre>
+java -cp $MESOS_SANDBOX/rt-jar-with-dependencies.jar org.jennings.rt.sink.kafka.KafkaCnt kafka simFile group1 $PORT0
+</pre>
+
+The health check can also be configured to use this port.  Use portIndex instead of port.
+
+<pre>
+      "portIndex": 0            
+</pre>
+
+
 ## reset_counts.py
 Takes two parameters the source app and the sink app name.  The script uses Marathon rest calls to get the ip's and port's then calls the /reset for each source/sink to clear data from previous runs.
 
