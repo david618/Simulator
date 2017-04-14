@@ -23,47 +23,7 @@ You should be able to connect to GeoEvent Manager, Portal, and ArcGIS Server as 
 
 ## Setup Test Server
 
-### Install some packages
-<pre>
-# yum -y install epel-release
-# yum -y install git
-# yum -y install java-1.8.0-openjdk
-# yum -y install maven
-</pre>
-
-### Clone Simulator
-<pre>
-$ git clone https://github.com/david618/Simulator
-</pre>
-
-Build Simulator
-<pre>
-$ cd Simulator
-$ mvn install
-</pre>
-Should end with "BUILD SUCCESS"
-
-### Install JMeter (optional)
-To support Map/Feature Service Testing
-<pre>
-$ cd ~
-$ curl -O http://apache.org/dist/jmeter/binaries/apache-jmeter-3.1.tgz
-</pre>
-
-Verify signature
-<pre>
-$ md5sum apache-jmeter-3.1.tgz
-f439864f8f14e38228fee5fab8d912b0  apache-jmeter-3.1.tgz
-</pre>
-
-Untar
-<pre>
-$ tar xvzf apache-jmeter-3.1.tgz
-</pre>
-
-<pre>
-$ git clone https://github.com/david618/agsservicetesting
-</pre>
+Here are insructions for [Setup Test Server](SetupTestServer.md)
 
 ## Create GeoEvent Input
 
