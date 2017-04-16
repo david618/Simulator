@@ -183,6 +183,16 @@ public class Elasticsearch {
                 elasticBulk = Integer.parseInt(args[7]);
             }
 
+//            String transports = "e2:9300";
+//            String clusterName = "elasticsearch";
+//            String idx = "sink";
+//            String typ = "test1";
+//            String filename = "simFile_1000_10s.json";
+//            Integer rate = 1000;
+//            Integer numRecords = 10000;
+//            Integer elasticBulk = 1000;
+            
+
             Elasticsearch t = new Elasticsearch(transports, clusterName);
             t.sendFile(idx, typ, filename, rate, numRecords, elasticBulk);
 
