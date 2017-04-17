@@ -175,7 +175,7 @@ public class Elasticsearch2 {
         // Command line example: a3:9300 simulator simfile simFile_1000_10s.json 100 1000 20
         int numargs = args.length;
         if (numargs != 7 && numargs != 8) {
-            System.err.print("Usage: Elasticsearch <elastic-search-transports> <cluster-name> <index> <type> <file> <rate> <numrecords> (<elastic-bulk-num>)\n");
+            System.err.print("Usage: Elasticsearch2 <elastic-search-transports> <cluster-name> <index> <type> <file> <rate> <numrecords> (<elastic-bulk-num>)\n");
         } else {
 
             String transports = args[0];
