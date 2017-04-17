@@ -21,6 +21,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 /**
  *
@@ -45,9 +46,13 @@ public class Elasticsearch2 {
             this.typ = typ;
             this.esbulk = esbulk;
 
-            Settings settings = Settings.settingsBuilder().put("cluster.name", this.clusterName).build();
-
-            TransportClient tc = TransportClient.builder().settings(settings).build();
+//            // These are for Elasticsearch 2.x
+//            Settings settings = Settings.settingsBuilder().put("cluster.name", this.clusterName).build();
+//            TransportClient tc = TransportClient.builder().settings(settings).build();
+            
+            // These are for Elasticsearch 5
+            Settings settings = Settings.builder().put("cluster.name", this.clusterName).build();
+            TransportClient tc = new PreBuiltTransportClient(settings);            
 
             String hosts[] = esnodes.split(",");
             for (String host : hosts) {
