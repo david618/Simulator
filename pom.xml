@@ -63,12 +63,12 @@
         </dependency>         
         <!-- These were for Elasticsearch 2.x -->  
 
-        <dependency>
+<!--        <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
             <version>2.4.1</version>
             <type>jar</type>
-        </dependency>
+        </dependency>-->
 
         
         <dependency>

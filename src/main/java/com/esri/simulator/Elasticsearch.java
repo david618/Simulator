@@ -24,6 +24,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 /**
  *
@@ -36,9 +37,13 @@ public class Elasticsearch {
     public Elasticsearch(String transports, String clusterName) {
         try {
 
-            Settings settings = Settings.settingsBuilder().put("cluster.name", clusterName).build();
-
-            TransportClient tc = TransportClient.builder().settings(settings).build();
+//            Settings settings = Settings.settingsBuilder().put("cluster.name", clusterName).build();
+//            TransportClient tc = TransportClient.builder().settings(settings).build();
+            
+            // These are for Elasticsearch 5
+            Settings settings = Settings.builder().put("cluster.name", clusterName).build();
+            TransportClient tc = new PreBuiltTransportClient(settings);            
+            
 
             String hosts[] = transports.split(",");
             for (String host : hosts) {
