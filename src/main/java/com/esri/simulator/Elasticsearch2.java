@@ -49,10 +49,9 @@ public class Elasticsearch2 {
 //            // These are for Elasticsearch 2.x
 //            Settings settings = Settings.settingsBuilder().put("cluster.name", this.clusterName).build();
 //            TransportClient tc = TransportClient.builder().settings(settings).build();
-            
             // These are for Elasticsearch 5
             Settings settings = Settings.builder().put("cluster.name", this.clusterName).build();
-            TransportClient tc = new PreBuiltTransportClient(settings);            
+            TransportClient tc = new PreBuiltTransportClient(settings);
 
             String hosts[] = esnodes.split(",");
             for (String host : hosts) {
@@ -194,6 +193,19 @@ public class Elasticsearch2 {
             Integer elasticBulk = 1000;
             if (numargs == 8) {
                 elasticBulk = Integer.parseInt(args[7]);
+            }
+
+            String esnodesSplit[] = transports.split(":");
+            if (esnodesSplit.length == 1) {
+                // Assume this is a MarathonName
+                MarathonInfo mi = new MarathonInfo();
+                if (clusterName.equalsIgnoreCase("-")) {
+                    clusterName = mi.getElasticSearchClusterName(transports);
+                }
+
+                // Try hub name. Name cannot have a ':' and brokers must have it.
+                transports = mi.getElasticSearchTransportAddresses(transports);
+
             }
 
 //        String transports = "e2:9300";
