@@ -13,12 +13,18 @@ For best results you should use a test server that is in the same subnet but is 
 </pre>
 
 ** Windows **
-- Install [Java](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-- Install [Git](https://git-scm.com/download/win) 
+- Install [Java](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) 
+  -- Java SE Development Kit Windows x64.  
+  -- Accept Defaults for installs.
+  -- Open Windows Advanced System Settings; Environemnt Variables
+  -- Create a new System Variable; Variable name: JAVA_HOME, Variable value: C:\Program Files\Java\jdk1.8.0_121.  
+  -- NOTE: The last number should match the version of Java you installed. You can use Explorer and navigate to the folder. then cut and paste the value.
+- Install [Git](https://git-scm.com/download/win) Download 64-bit Git for Windows Setup. Defaults for all installation dialogs. 
   -- You can use defaults during install
 - Install [Maven](https://maven.apache.org/download.cgi)
-  -- Unzip the Binary zip archive and unzip
-  -- Update your Path (e.g.  D:\apache-maven-3.3.9\bin)
+  -- Download the Binary zip archive and unzip (I usually put it in C:\) 
+  -- Open Windows Advanced System Settings; Environemnt Variables
+  -- Edit the Path variable and append Maven to the path. Append a semicolon followed by path to Maven bin folder (e.g. ;C:\apache-maven-3.5.0\bin).  Cut and paste is helpful.
 
 ## Clone Simulator
 <pre>
