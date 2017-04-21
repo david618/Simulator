@@ -63,7 +63,7 @@
         </dependency>         
         <!-- These were for Elasticsearch 2.x -->  
 
-<!--        <dependency>
+        <!--        <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
             <version>2.4.1</version>
@@ -77,6 +77,13 @@
             <version>8.1.15.v20140411</version>
             <type>jar</type>
         </dependency>
+        
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.4.1212</version>
+        </dependency>        
+        
     </dependencies>
     <build>
         <finalName>Simulator</finalName>
