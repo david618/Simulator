@@ -68,7 +68,7 @@ public class Postgresql {
             
             rs.next();
             
-            int oid = rs.getInt("maxoid") + 1;
+            int oid = rs.getInt("maxoid");
 
             
             int numPoints = 50;
@@ -87,9 +87,10 @@ public class Postgresql {
             
             int num = 0;
             
-            while (num < 10000) {
+            while (num < 10) {
                 
                 num +=1;
+                oid +=1;
             
                 Random rnd = new Random();
 

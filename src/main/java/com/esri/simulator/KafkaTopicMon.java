@@ -92,10 +92,10 @@ public class KafkaTopicMon {
                 long cnt = cnt2 - stcnt;
                 double rcvRate = regression.getSlope() * 1000;  // converting from ms to seconds
 
-                if (numSamples > 5) {
+                if (numSamples > 4) {
                     double rateStdErr = regression.getSlopeStdErr();
                     System.out.format("%d , %.2f, %.4f\n", cnt, rcvRate, rateStdErr);
-                } else if (numSamples >= 3) {
+                } else if (numSamples > 2) {
                     System.out.format("%d , %.2f\n", cnt, rcvRate);
                 } else {
                     System.out.println("Not enough samples to calculate rate. ");
@@ -124,7 +124,7 @@ public class KafkaTopicMon {
     String topic;
     KafkaConsumer<String, String> consumer;
 
-    public KafkaTopicMon(String brokers, String topic, long sampleRateMS) {
+    public KafkaTopicMon(String brokers, String topic, long sampleRate) {
 
 //        this.brokers = "k1:9092";
 //        this.topic = "satellites";
@@ -146,7 +146,7 @@ public class KafkaTopicMon {
             consumer = new KafkaConsumer<>(props);
 
             timer = new Timer();
-            timer.schedule(new CheckCount(), 0, sampleRateMS);
+            timer.schedule(new CheckCount(), 0, sampleRate*1000);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -158,9 +158,9 @@ public class KafkaTopicMon {
 
         int numargs = args.length;
         if (numargs != 2 && numargs != 3) {
-            System.err.print("Usage: KakfaTopicMon <brokers> <topic> (<sampleRateMS>)\n");
+            System.err.print("Usage: KakfaTopicMon <brokers> <topic> (<sampleRateSec>)\n");
         } else if (numargs == 2) {
-            new KafkaTopicMon(args[0], args[1], 5000);
+            new KafkaTopicMon(args[0], args[1], 5);
         } else {
             new KafkaTopicMon(args[0], args[1], Integer.parseInt(args[2]));
         }

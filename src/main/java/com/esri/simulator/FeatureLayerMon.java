@@ -191,7 +191,7 @@ public class FeatureLayerMon {
         //FeatureLayerMon t = new FeatureLayerMon("https://ec2-52-14-149-22.us-east-2.compute.amazonaws.com:6443/arcgis/rest/services/Hosted/FAA-Stream/FeatureServer/0");
         //FeatureLayerMon t = new FeatureLayerMon("https://portal.example.com/arcgis/rest/services/Hosted/FAA-Stream/FeatureServer/0");
         if (numargs != 1 && numargs != 2) {
-            System.err.print("Usage: FeatureLayerMon <Feature-Layer> (<sampleRateMS>) \n");
+            System.err.print("Usage: FeatureLayerMon <Feature-Layer> (<sampleRateSec>) \n");
         } else if (numargs == 1) {
             FeatureLayerMon t = new FeatureLayerMon(args[0], 5);
         } else {

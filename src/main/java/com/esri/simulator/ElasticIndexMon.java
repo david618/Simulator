@@ -146,10 +146,10 @@ public class ElasticIndexMon {
                     int cnt = cnt2 - stcnt;
                     double rcvRate = regression.getSlope() * 1000;  // converting from ms to seconds
 
-                    if (numSamples > 5) {
+                    if (numSamples > 4) {
                         double rateStdErr = regression.getSlopeStdErr();
                         System.out.format("%d , %.2f, %.4f\n", cnt, rcvRate, rateStdErr);
-                    } else if (numSamples >= 3) {
+                    } else if (numSamples > 2) {
                         System.out.format("%d , %.2f\n", cnt, rcvRate);
                     } else {
                         System.out.println("Not enough samples to calculate rate. ");
@@ -183,7 +183,7 @@ public class ElasticIndexMon {
     String user;
     String userpw;
 
-    public ElasticIndexMon(String esServer, String index, String user, String userpw, long sampleRateMS) {
+    public ElasticIndexMon(String esServer, String index, String user, String userpw, long sampleRate) {
 
 //        esServer = "ags:9220";
 //        index = "FAA-Stream/FAA-Stream";
@@ -194,7 +194,7 @@ public class ElasticIndexMon {
         this.user = user;
         this.userpw = userpw;
         timer = new Timer();
-        timer.schedule(new CheckCount(), 0, sampleRateMS);
+        timer.schedule(new CheckCount(), 0, sampleRate*1000);
     }
 
     public static void main(String[] args) {
@@ -203,11 +203,11 @@ public class ElasticIndexMon {
         //FeatureLayerMon t = new FeatureLayerMon("https://ec2-52-14-149-22.us-east-2.compute.amazonaws.com:6443/arcgis/rest/services/Hosted/FAA-Stream/FeatureServer/0");
         //FeatureLayerMon t = new FeatureLayerMon("https://portal.example.com/arcgis/rest/services/Hosted/FAA-Stream/FeatureServer/0");
         if (numargs != 2 && numargs != 4 && numargs != 5) {
-            System.err.print("Usage: ElasticIndexMon <ElasticsearchServerPort> <Index/Type> (<username> <password> <sampleRateMS>) \n");
+            System.err.print("Usage: ElasticIndexMon <ElasticsearchServerPort> <Index/Type> (<username> <password> <sampleRateSec>) \n");
         } else if (numargs == 2) {
-            ElasticIndexMon t = new ElasticIndexMon(args[0], args[1], "", "", 5000);
+            ElasticIndexMon t = new ElasticIndexMon(args[0], args[1], "", "", 5);
         } else if (numargs == 4) {
-            ElasticIndexMon t = new ElasticIndexMon(args[0], args[1], args[2], args[3], 5000);
+            ElasticIndexMon t = new ElasticIndexMon(args[0], args[1], args[2], args[3], 5);
         } else {
             ElasticIndexMon t = new ElasticIndexMon(args[0], args[1], args[2], args[3], Integer.parseInt(args[4]));
         }
