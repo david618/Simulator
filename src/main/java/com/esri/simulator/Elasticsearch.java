@@ -42,9 +42,9 @@ public class Elasticsearch {
             
             // These are for Elasticsearch 5
             Settings settings = Settings.builder().put("cluster.name", clusterName).build();
-            TransportClient tc = new PreBuiltTransportClient(settings);            
+            TransportClient tc = new PreBuiltTransportClient(settings);        
             
-
+            
             String hosts[] = transports.split(",");
             for (String host : hosts) {
                 String parts[] = host.split(":");

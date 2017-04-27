@@ -108,6 +108,13 @@ public class Elasticsearch2 {
             public void afterBulk(long executionId,
                     BulkRequest request,
                     Throwable failure) {
+                if (failure != null) {
+                    String ms = failure.getMessage();
+                    if (!ms.isEmpty()) {
+                        System.out.println(ms);
+                    }
+                }
+                
             }
         })
                 .setBulkActions(this.esbulk)
