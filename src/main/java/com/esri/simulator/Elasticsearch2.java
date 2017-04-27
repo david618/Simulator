@@ -216,6 +216,16 @@ public class Elasticsearch2 {
 //        Integer rate = 20000;
 //        Integer numRecords = 100000;
 //        Integer elasticBulk = 1000;
+//        System.out.println("transports: " + transports);
+//        System.out.println("clusterName: " + clusterName);
+//        System.out.println("idx: " + idx);
+//        System.out.println("typ: " + typ);
+//        System.out.println("filename: " + filename);
+//        System.out.println("rate: " + rate);
+//        System.out.println("numRecords: " + numRecords);
+//        System.out.println("elasticBulk: " + elasticBulk);
+
+
             Elasticsearch2 t = new Elasticsearch2(transports, clusterName, idx, typ, elasticBulk);
             t.sendFile(filename, rate, numRecords);
 
