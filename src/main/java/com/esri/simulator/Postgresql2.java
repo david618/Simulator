@@ -174,7 +174,7 @@ public class Postgresql2 {
                             sql += json.getDouble(key) + ",";
                             break;
                         case STR:
-                            sql += "'" + json.getString(key) + "',";
+                            sql += "'" + json.getString(key).replace("'", "''") + "',";
                             break;
                         default:
                             break;
