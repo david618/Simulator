@@ -30,26 +30,20 @@ public class Postgresql2 {
     final static int LNG = 1;
     final static int DBL = 2;
     final static int STR = 3;
-    
-    
-    final static int MAXSTRLEN = 50;
-    
-    private void printCreate(String serverDB, String tablename, String username, String password, String fileJsonLines, String geomFieldName, String lonFieldName, String latFieldName) {
+
+    final static int MAXSTRLEN = 100;
+
+    private void printCreate(String tablename, String fileJsonLines, String geomFieldName, String oidFieldName) {
 
         try {
-            
+
             /**
-CREATE TABLE ecenter (
-    oid integer,
-    clat double precision,
-    clon double precision,
-    num integer
-);
-
-SELECT AddGeometryColumn('', 'ecenter','geom',4326,'POINT',2);
-
-*/
-        
+             * CREATE TABLE ecenter ( oid integer, clat double precision, clon
+             * double precision, num integer );
+             *
+             * SELECT AddGeometryColumn('', 'ecenter','geom',4326,'POINT',2);
+             *
+             */
             FileReader fr = new FileReader(fileJsonLines);
 
             BufferedReader br = new BufferedReader(fr);
@@ -57,12 +51,12 @@ SELECT AddGeometryColumn('', 'ecenter','geom',4326,'POINT',2);
             String line = br.readLine();
 
             JSONObject json = null;
-            
+
             String sql = "";
 
             if (line != null) {
 
-                sql = "CREATE TABLE " + tablename + " (";
+                sql = "CREATE TABLE " + tablename + " (" + oidFieldName + " serial4,";
 
                 // Create the Schema
                 json = new JSONObject(line);
@@ -86,22 +80,22 @@ SELECT AddGeometryColumn('', 'ecenter','geom',4326,'POINT',2);
 
                 }
 
-                sql = sql.substring(0,sql.length() - 1) + ");";
-                
+                sql = sql.substring(0, sql.length() - 1) + ");";
+
                 System.out.println(sql);
-                
-                sql = "SELECT AddGeometryColumn('','" + tablename + "','" + geomFieldName +"',4326,'POINT',2);";
+
+                sql = "SELECT AddGeometryColumn('','" + tablename + "','" + geomFieldName + "',4326,'POINT',2);";
                 System.out.println(sql);
-                
+
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
     }
 
-    private void run(String serverDB, String tablename, String username, String password, String fileJsonLines, String geomFieldName, String lonFieldName, String latFieldName) {
+    private void run(String tablename, String fileJsonLines, String geomFieldName, String oidFieldName, String serverDB, String username, String password, String lonFieldName, String latFieldName) {
         try {
 
             // Create DB Connection
@@ -127,7 +121,7 @@ SELECT AddGeometryColumn('', 'ecenter','geom',4326,'POINT',2);
 
             if (line != null) {
 
-                sqlPrefix = "INSERT INTO " + tablename + " (";
+                sqlPrefix = "INSERT INTO " + tablename + " (" + oidFieldName + ",";
 
                 // Create the Schema
                 json = new JSONObject(line);
@@ -155,10 +149,11 @@ SELECT AddGeometryColumn('', 'ecenter','geom',4326,'POINT',2);
 
                 //oid,a,b,clat,clon,rot,num,geom
                 //sqlPrefix = sqlPrefix.substring(0,sqlPrefix.length() - 1) + ") VALUES (";
-                
-                sqlPrefix += geomFieldName  + ") VALUES (";
+                sqlPrefix += geomFieldName + ") VALUES (DEFAULT,";
 
             }
+
+            int num = 0;
 
             while (line != null) {
                 //System.out.println(line);
@@ -184,31 +179,38 @@ SELECT AddGeometryColumn('', 'ecenter','geom',4326,'POINT',2);
                         default:
                             break;
                     }
-                    
-                    
+
                 }
-                
+
                 //ST_GeomFromText('POINT(-71.060316 48.432044)', 4326)
-                
                 //sql = sql.substring(0,sql.length() - 1) + ");";
-                
-                sql += "ST_GeomFromText('POINT(" + json.getDouble(lonFieldName) + " " + json.getDouble(latFieldName) + ")', 4326)"  + ");";
-                
-                
+                sql += "ST_GeomFromText('POINT(" + json.getDouble(lonFieldName) + " " + json.getDouble(latFieldName) + ")', 4326)" + ");";
                 System.out.println(sql);
                 
+                stmt = c.createStatement();
+                stmt.executeUpdate(sql);
+
+                num += 1;
+
+                if (num % 1000 == 0) {
+                    c.commit();
+                }
+
+
+
                 line = br.readLine();
 
                 if (line != null) {
                     json = new JSONObject(line);
                 }
-                
-                
+
 //                break;
             }
 
-            
-            
+            c.commit();
+
+            c.close();
+
             br.close();
             fr.close();
         } catch (Exception e) {
@@ -219,12 +221,32 @@ SELECT AddGeometryColumn('', 'ecenter','geom',4326,'POINT',2);
 
     public static void main(String[] args) {
         Postgresql2 t = new Postgresql2();
-        //t.run("pg95:5432/gis1","user1", "user1","simFile_1000_10s.json");
-        // ServerPort/DB, username, password, file, geomfieldname, lonfieldname, latfieldname
-        
-        t.printCreate("pg1:5432/db1", "planes", "user1", "user1", "simFile_1000_10s.json", "geom", "lon", "lat");
-        t.run("pg1:5432/db1", "planes", "user1", "user1", "simFile_1000_10s.json", "geom", "lon", "lat");
-        t.printCreate("pg1:5432/db1", "planes", "user1", "user1", "simFile_1000_10s.json", "geom", "lon", "lat");
+
+        String tableName = "planes3";
+        String filename = "flights.json";
+        String geomFieldName = "geom";
+        String oidFieldName = "oid";
+
+        String serverConn = "pg1:5432/db1";
+        String username = "user1";
+        String password = "user1";
+        String lonFieldName = "lon";
+        String latFieldName = "lat";
+
+        //t.printCreate(tableName, filename, geomFieldName, oidFieldName);
+//        t.run(tableName, filename, geomFieldName, oidFieldName, serverConn, username, password, lonFieldName, latFieldName);
+
+        int numargs = args.length;
+
+        if (numargs != 4 && numargs != 9) {
+            System.err.println("Usage Print Create Table: Postgresql2 <tableName> <fileName> <geomFieldName> <oidFieldName>");
+            System.err.println("Usage Load Data: Postgresql2 <tableName> <fileName> <geomFieldName> <oidFieldName> <serverConn> <username> <password> <lonFieldName> <latFieldName>");
+        } else if (numargs == 3) {
+            t.printCreate(tableName, filename, geomFieldName, oidFieldName);
+        } else {
+            t.run(tableName, filename, geomFieldName, oidFieldName, serverConn, username, password, lonFieldName, latFieldName);
+        }
+
     }
 
 }
