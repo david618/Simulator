@@ -241,9 +241,23 @@ public class Postgresql2 {
         if (numargs != 4 && numargs != 9) {
             System.err.println("Usage Print Create Table: Postgresql2 <tableName> <fileName> <geomFieldName> <oidFieldName>");
             System.err.println("Usage Load Data: Postgresql2 <tableName> <fileName> <geomFieldName> <oidFieldName> <serverConn> <username> <password> <lonFieldName> <latFieldName>");
-        } else if (numargs == 3) {
+        } else if (numargs == 4) {
+            tableName = args[0];
+            filename = args[1];
+            geomFieldName = args[2];
+            oidFieldName = args[3];
             t.printCreate(tableName, filename, geomFieldName, oidFieldName);
         } else {
+            tableName = args[0];
+            filename = args[1];
+            geomFieldName = args[2];
+            oidFieldName = args[4];
+            serverConn = args[5];
+            username = args[6];
+            password = args[7];
+            lonFieldName = args[8];
+            latFieldName = args[9];
+            
             t.run(tableName, filename, geomFieldName, oidFieldName, serverConn, username, password, lonFieldName, latFieldName);
         }
 
