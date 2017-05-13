@@ -251,12 +251,12 @@ public class Postgresql2 {
             tableName = args[0];
             filename = args[1];
             geomFieldName = args[2];
-            oidFieldName = args[4];
-            serverConn = args[5];
-            username = args[6];
-            password = args[7];
-            lonFieldName = args[8];
-            latFieldName = args[9];
+            oidFieldName = args[3];
+            serverConn = args[4];
+            username = args[5];
+            password = args[6];
+            lonFieldName = args[7];
+            latFieldName = args[8];
             
             t.run(tableName, filename, geomFieldName, oidFieldName, serverConn, username, password, lonFieldName, latFieldName);
         }
