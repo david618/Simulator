@@ -20,7 +20,7 @@ Second line install git and maven.  This install will install java also if it's 
 ### Build Simulator
 
 <pre>
-$ git https://github.com/david618/Simulator
+$ git clone https://github.com/david618/Simulator
 $ cd Simulator
 $ mvn install 
 </pre>
