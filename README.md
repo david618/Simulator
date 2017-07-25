@@ -4,10 +4,28 @@ Reads simulation file into memory then sends line by line to the specified host 
 
 ## Installation
 
-Tested with maven 3.3.9
-$ mvn install 
+### Pre Reqs
+You must have java, maven, and git installed. 
 
-The target folder will contain:
+For example in CentOS:
+<pre>
+# sudo yum install epel-release 
+# sudo yum install git maven
+</pre>
+
+First line installs the "Extra Packages for Enterprise Linux" repository to yum.
+
+Second line install git and maven.  This install will install java also if it's not installed.
+
+### Build Simulator
+
+<pre>
+$ git https://github.com/david618/Simulator
+$ cd Simulator
+$ mvn install 
+</pre>
+
+After Build; the target folder will contain:
 - lib folder: all of the jar depdencies
 - Simulator.jar: small executable jar without dependencies.
 - Simulator-jar-with-dependencies.jar: large executable jar with dependencies.
