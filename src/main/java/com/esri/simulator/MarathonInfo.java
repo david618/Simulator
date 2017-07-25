@@ -95,7 +95,8 @@ public class MarathonInfo {
                     k++;
 
                     // Now get brokers from service
-                    url = "http://" + kafkaName + ".marathon.mesos:" + String.valueOf(port) + "/v1/connection";
+                    //url = "http://" + kafkaName + ".marathon.mesos:" + String.valueOf(port) + "/v1/connection";
+                    url = "http://" + kafkaName + ".marathon.mesos:" + String.valueOf(port) + "/v1/endpoints/broker";
 
                     //System.out.println(url);
                     request = new HttpGet(url);
