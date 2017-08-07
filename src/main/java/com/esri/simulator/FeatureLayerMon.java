@@ -160,8 +160,9 @@ public class FeatureLayerMon {
                     break;
 
                 } catch (Exception a) {
-
                     System.out.println(a.getMessage());
+                    // On Error Wait 10 seconds try again
+                    Thread.sleep(10 * 1000);
                 }
 
             }
