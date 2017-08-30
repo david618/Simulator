@@ -1,14 +1,15 @@
-
 /**
  * Monitors an Kafka Topic
  * Periodically does a count and when count is changing collects samples.
  * After three samples are made outputs rates based on linear regression.
  * After counts stop changing outputs the final rate and last estimated rate.
+ *
+ * 30 Aug 2017: Started adding Logging to try to get rid of log messages on startup.
+ * Didn't work. If however you add 2>/dev/null to end of command line the info messages are hidden.
  * 
  * Creator: David Jennings
- * 
+ *
  */
-
 package com.esri.simulator;
 
 import java.util.Collections;
@@ -22,12 +23,16 @@ import java.util.stream.Collectors;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author david
  */
 public class KafkaTopicMon {
+    
+    //private static final Logger logger = LogManager.getLogger(KafkaTopicMon.class);
 
     class CheckCount extends TimerTask {
 
@@ -52,6 +57,9 @@ public class KafkaTopicMon {
 
         @Override
         public void run() {
+            
+            //logger.error("Entering application.");
+
             List<TopicPartition> partitions = consumer.partitionsFor(topic).stream()
                     .map(p -> new TopicPartition(topic, p.partition()))
                     .collect(Collectors.toList());
@@ -71,17 +79,16 @@ public class KafkaTopicMon {
             } else if (cnt1 > cnt2) {
                 // Increase number of samples
                 numSamples += 1;
-                
+
                 if (numSamples > 2) {
                     double rcvRate = regression.getSlope() * 1000;
-                    System.out.println(numSamples + "," + t1 + "," + cnt1 + "," + rcvRate);
+                    System.out.println(numSamples + "," + t1 + "," + cnt1 + "," + String.format("%.0f", rcvRate));
                 } else {
                     System.out.println(numSamples + "," + t1 + "," + cnt1);
                 }
 
                 // Add to Linear Regression
                 regression.addData(t1, cnt1);
-
 
             } else if (cnt1 == cnt2 && numSamples > 0) {
                 numSamples -= 1;
@@ -94,9 +101,9 @@ public class KafkaTopicMon {
 
                 if (numSamples > 4) {
                     double rateStdErr = regression.getSlopeStdErr();
-                    System.out.format("%d , %.2f, %.4f\n", cnt, rcvRate, rateStdErr);
-                } else if (numSamples > 2) {
-                    System.out.format("%d , %.2f\n", cnt, rcvRate);
+                    System.out.format("%d , %.0f, %.4f\n", cnt, rcvRate, rateStdErr);
+                } else if (numSamples >= 2) {
+                    System.out.format("%d , %.0f\n", cnt, rcvRate);
                 } else {
                     System.out.println("Not enough samples to calculate rate. ");
                 }
@@ -142,11 +149,11 @@ public class KafkaTopicMon {
             props.put("session.timeout.ms", "30000");
             props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
             props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-
+                       
             consumer = new KafkaConsumer<>(props);
-
+ 
             timer = new Timer();
-            timer.schedule(new CheckCount(), 0, sampleRate*1000);
+            timer.schedule(new CheckCount(), 0, sampleRate * 1000);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -156,6 +163,8 @@ public class KafkaTopicMon {
 
     public static void main(String[] args) {
 
+        //logger.error("Entering application.");
+        
         int numargs = args.length;
         if (numargs != 2 && numargs != 3) {
             System.err.print("Usage: KakfaTopicMon <brokers> <topic> (<sampleRateSec>)\n");
