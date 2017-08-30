@@ -40,6 +40,8 @@ Usage: Tcp &lt;server&gt; &lt;port&gt; &lt;file&gt; &lt;rate&gt; &lt;numrecords&
 - Sends lines from file to the specified server and port.  
 - The simulator tries to send numrecords at rate requested.
 - During the run the simulator counts the records and actual rate it was able to send and outputs that to the screen.
+- There is a limit to the rate Tcp can achieve; which depends on hardware and network speed; Memmory seems to be a big limiter on max speed (on i7 computer with 16G of memory max rate was around 150,000/s)
+- There is also a limit on the size of the file. I was able to run with a file containing 5 Million (~100 byte) lines; however, it would not load a 10 Million line file.
 
 ### com.esri.simulator.Kafka
 
@@ -101,7 +103,7 @@ $ java -cp target/Simulator.jar com.esri.simulator.KafkaTopicMon 172.17.2.5:9528
 - Connects to Kafka on 172.17.2.5 on port 9528 
 - Gets counts for the satellites-in topic
 - The sample rate is set to 60,000 ms which is 60 seconds
-
+- At or around Kafka 0.10.x; when starting the tool displays a bunch of what looks like INFO messages from logger; if you append a redirect for error messages (e.g.  2>stderr.txt) to the command the messages will be hidden. Tried to configure logger for the tool but it did not help with these Error messages.
 
 ### com.esri.simulator.TcpSink
 
