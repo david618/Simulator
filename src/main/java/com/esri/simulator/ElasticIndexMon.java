@@ -1,3 +1,22 @@
+/*
+ * (C) Copyright 2017 David Jennings
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     David Jennings
+ */
+
 /**
  * Monitors an Elasticsearch Index/Type.
  * Periodically does a count and when count is changing collects samples.
@@ -108,14 +127,13 @@ public class ElasticIndexMon {
                 int responseCode = response.getStatusLine().getStatusCode();
 
                 String line;
-                StringBuffer result = new StringBuffer();
+                StringBuilder result = new StringBuilder();
                 while ((line = rd.readLine()) != null) {
                     result.append(line);
                 }
 
                 JSONObject json = new JSONObject(result.toString());
 
-                //System.out.println(json.getInt("count"));
                 cnt1 = json.getInt("count");
 
                 t1 = System.currentTimeMillis();
@@ -170,6 +188,7 @@ public class ElasticIndexMon {
                 t2 = t1;
 
             } catch (Exception e) {
+                e.printStackTrace();
 
             }
 
@@ -200,8 +219,6 @@ public class ElasticIndexMon {
     public static void main(String[] args) {
         int numargs = args.length;
 
-        //FeatureLayerMon t = new FeatureLayerMon("https://ec2-52-14-149-22.us-east-2.compute.amazonaws.com:6443/arcgis/rest/services/Hosted/FAA-Stream/FeatureServer/0");
-        //FeatureLayerMon t = new FeatureLayerMon("https://portal.example.com/arcgis/rest/services/Hosted/FAA-Stream/FeatureServer/0");
         if (numargs != 2 && numargs != 4 && numargs != 5) {
             System.err.print("Usage: ElasticIndexMon <ElasticsearchServerPort> <Index/Type> (<username> <password> <sampleRateSec>) \n");
         } else if (numargs == 2) {

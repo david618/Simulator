@@ -1,13 +1,28 @@
 /*
- * Sends lines of a text file to a Kafka Topic 
- * Lines are sent at a specified rate.
- * 
- * Creator: David Jennings
-*/
+ * (C) Copyright 2017 David Jennings
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     David Jennings
+ */
+
+
 package com.esri.simulator;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,19 +32,26 @@ import java.util.UUID;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-/**
- *
+
+/*
+ * Sends lines of a text file to a Kafka Topic 
+ * Lines are sent at a specified rate.
+ * 
  * @author david
  */
 public class Kafka {
 
+    private static final Logger log = LogManager.getLogger(KafkaTopicMon.class);
+    
     private Producer<String, String> producer;
     private String topic;
     
     public Kafka(String brokers, String topic) {
 
-        try {
+            // https://kafka.apache.org/documentation/#producerconfigs
             Properties props = new Properties();
             props.put("bootstrap.servers",brokers);
             props.put("client.id", Kafka.class.getName());
@@ -38,6 +60,7 @@ public class Kafka {
             props.put("batch.size", 16384);
             props.put("linger.ms", 1);
             props.put("buffer.memory", 8192000);
+            props.put("request.timeout.ms", "11000");
             props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
             props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
             /* Addin Simple Partioner didn't help */
@@ -46,9 +69,6 @@ public class Kafka {
             this.producer = new KafkaProducer<>(props);
             this.topic = topic;
             
-        } catch (Exception e) {
-            e.printStackTrace();
-        }        
     }
     
     /**
@@ -65,7 +85,7 @@ public class Kafka {
             BufferedReader br = new BufferedReader(fr);
             
             // Read the file into an array
-            ArrayList<String> lines = new ArrayList<String>();
+            ArrayList<String> lines = new ArrayList<>();
             
             
             String line;
@@ -114,10 +134,10 @@ public class Kafka {
                     final long stime = System.nanoTime();
                     
                     UUID uuid = UUID.randomUUID();
-                    producer.send(new ProducerRecord<String,String>(this.topic, uuid.toString(),line));
+                    producer.send(new ProducerRecord<>(this.topic, uuid.toString(),line));
 
                     
-                    long etime = 0;
+                    long etime;
                     do {
                         // This approach uses a lot of CPU                    
                         etime = System.nanoTime();
@@ -146,7 +166,7 @@ public class Kafka {
                         line = linesIt.next() + "\n";
 
                         UUID uuid = UUID.randomUUID();
-                        producer.send(new ProducerRecord<String,String>(this.topic, uuid.toString(),line));
+                        producer.send(new ProducerRecord<>(this.topic, uuid.toString(),line));
 
                     }
                     // If you remove some part of the time which is used for sending
@@ -172,10 +192,10 @@ public class Kafka {
 
             System.out.println(cnt + "," + sendRate);            
             
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException e) {
             // Could fail on very large files that would fill heap space 
             
-            e.printStackTrace();
+            log.error("ERROR", e);
             
         }
     }

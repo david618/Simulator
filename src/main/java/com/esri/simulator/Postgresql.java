@@ -1,4 +1,23 @@
 /*
+ * (C) Copyright 2017 David Jennings
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     David Jennings
+ */
+
+/*
 Send data to Postgresql; In development.
 
  */
@@ -11,9 +30,10 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
-import org.jennings.geomtools.GeographicCoordinate;
-import org.jennings.geomtools.GreatCircle;
+import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -23,131 +43,193 @@ import org.json.JSONObject;
  */
 public class Postgresql {
 
-    private static ArrayList<GeographicCoordinate> landGrids = null;
+    final static int INT = 0;
+    final static int LNG = 1;
+    final static int DBL = 2;
+    final static int STR = 3;
 
-    private String loadLandGrids() {
-        landGrids = new ArrayList<>();
+    final static int MAXSTRLEN = 100;
 
-        String message = "";
+    private void printCreate(String tablename, String fileJsonLines, String geomFieldName, String oidFieldName) {
 
         try {
-            FileReader fr = new FileReader("landgrids.csv");
+
+            /**
+             * CREATE TABLE ecenter ( oid integer, clat double precision, clon
+             * double precision, num integer );
+             *
+             * SELECT AddGeometryColumn('', 'ecenter','geom',4326,'POINT',2);
+             *
+             */
+            FileReader fr = new FileReader(fileJsonLines);
+
             BufferedReader br = new BufferedReader(fr);
 
-            br.readLine();  // discard first line header
-            String strLine = "";
-            while ((strLine = br.readLine()) != null) {
-                String[] parts = strLine.split(",");
-                Double lat = Double.parseDouble(parts[0]);
-                Double lon = Double.parseDouble(parts[1]);
-                GeographicCoordinate coord = new GeographicCoordinate(lon, lat);
-                landGrids.add(coord);
+            String line = br.readLine();
+
+            JSONObject json = null;
+
+            String sql = "";
+
+            if (line != null) {
+
+                sql = "CREATE TABLE " + tablename + " (" + oidFieldName + " serial4,";
+
+                // Create the Schema
+                json = new JSONObject(line);
+
+                Set<String> ks = json.keySet();
+
+                for (String k : ks) {
+                    //System.out.println(k);
+
+                    Object val = json.get(k);
+
+                    if (val instanceof Integer) {
+                        sql += k + " integer,";
+                    } else if (val instanceof Long) {
+                        sql += k + " bigint,";;
+                    } else if (val instanceof Double) {
+                        sql += k + " double precision,";;
+                    } else if (val instanceof String) {
+                        sql += k + " varchar(" + MAXSTRLEN + "),";;
+                    }
+
+                }
+
+                sql = sql.substring(0, sql.length() - 1) + ");";
+
+                System.out.println(sql);
+
+                sql = "SELECT AddGeometryColumn('','" + tablename + "','" + geomFieldName + "',4326,'POINT',2);";
+                System.out.println(sql);
+
             }
 
         } catch (Exception e) {
-            message = "ERROR" + e.getClass() + ">>" + e.getMessage();
-            System.out.println(message);
+            e.printStackTrace();
         }
-        return message;
+
     }
 
-    private void run() {
+    private void run(String tablename, String fileJsonLines, String geomFieldName, String oidFieldName, String serverDB, String username, String password, String lonFieldName, String latFieldName) {
         try {
 
+            // Create DB Connection
             Connection c = null;
             Statement stmt = null;
             c = DriverManager
-                    .getConnection("jdbc:postgresql://pg95:5432/gis1",
-                            "user1", "user1");
+                    .getConnection("jdbc:postgresql://" + serverDB,
+                            username, password);
             c.setAutoCommit(false);
 
-            
             stmt = c.createStatement();
-            String sql = "select max(oid) maxoid from ellipse;";
-            ResultSet rs = stmt.executeQuery(sql);
-            
-            rs.next();
-            
-            int oid = rs.getInt("maxoid");
 
-            
-            int numPoints = 50;
+            FileReader fr = new FileReader(fileJsonLines);
 
-            loadLandGrids();
+            BufferedReader br = new BufferedReader(fr);
 
-            int numLandGrids = landGrids.size();
+            String line = br.readLine();
 
-            JSONObject crs = new JSONObject();
-            crs.put("type", "name");
-            JSONObject nm = new JSONObject();
-            nm.put("name", "EPSG:4326");
-            crs.put("properties", nm);
-            
-            //System.out.println(crs);
-            
-            int num = 0;
-            
-            while (num < 10) {
-                
-                num +=1;
-                oid +=1;
-            
-                Random rnd = new Random();
+            String sqlPrefix = "";
+            JSONObject json = null;
 
-                double a = rnd.nextDouble() * 1 + 0.01;  // a from 0.01 to 1.1km
-                double b = rnd.nextDouble() * 1 + 0.01;  // b from 0.01 to 1.1km
-                double r = rnd.nextDouble() * 360; // Rotation 0 to 360 
+            HashMap<String, Integer> jsonMap = new HashMap<>();
 
-                GeographicCoordinate llcorner = landGrids.get(rnd.nextInt(numLandGrids));
+            if (line != null) {
 
-                double minLon = llcorner.getLon();
-                double maxLon = minLon + 1;
-                double lon = minLon + (maxLon - minLon) * rnd.nextDouble();
+                sqlPrefix = "INSERT INTO " + tablename + " (" + oidFieldName + ",";
 
-                double minLat = llcorner.getLat();
-                double maxLat = minLat + 1;
+                // Create the Schema
+                json = new JSONObject(line);
 
-                double lat = minLat + (maxLat - minLat) * rnd.nextDouble();
+                Set<String> ks = json.keySet();
 
-                JSONObject result = new JSONObject();
-                JSONArray polys = new JSONArray();
-                try {
+                for (String k : ks) {
+                    //System.out.println(k);
 
-                    // Problem with large areas crossing -180 and 180 for now I'll set to small number
-                    GreatCircle gc = new GreatCircle();
-                    polys = gc.createEllipse3(lon, lat, a, b, r, numPoints, false);
+                    Object val = json.get(k);
 
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    if (val instanceof Integer) {
+                        jsonMap.put(k, INT);
+                    } else if (val instanceof Long) {
+                        jsonMap.put(k, LNG);
+                    } else if (val instanceof Double) {
+                        jsonMap.put(k, DBL);
+                    } else if (val instanceof String) {
+                        jsonMap.put(k, STR);
+                    }
+                    //System.out.println();
+                    sqlPrefix += k + ",";
+
                 }
 
-                JSONObject geom = new JSONObject();
-                geom.put("type", "MultiPolygon");
-                geom.put("coordinates", polys);
-                geom.put("crs", crs);
+                //oid,a,b,clat,clon,rot,num,geom
+                //sqlPrefix = sqlPrefix.substring(0,sqlPrefix.length() - 1) + ") VALUES (";
+                sqlPrefix += geomFieldName + ") VALUES (DEFAULT,";
 
-                sql = "INSERT INTO ellipse (oid,a,b,clat,clon,rot,num,geom) VALUES (";
-                sql += oid + ",";
-                sql += a + ",";
-                sql += b + ",";
-                sql += lat + ",";
-                sql += lon + ",";
-                sql += r + ",";
-                sql += num + ",";
-                sql += "ST_GeomFromGeoJSON('" + geom.toString() + "'));";
-                //System.out.println(sql);
+            }
+
+            int num = 0;
+
+            while (line != null) {
+                //System.out.println(line);
+                // Create sql line
+                String sql = "";
+
+                sql = sqlPrefix;
+
+                for (String key : jsonMap.keySet()) {
+                    switch (jsonMap.get(key)) {
+                        case INT:
+                            sql += json.getInt(key) + ",";
+                            break;
+                        case LNG:
+                            sql += json.getLong(key) + ",";
+                            break;
+                        case DBL:
+                            sql += json.getDouble(key) + ",";
+                            break;
+                        case STR:
+                            sql += "'" + json.getString(key).replace("'", "''") + "',";
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+
+                //ST_GeomFromText('POINT(-71.060316 48.432044)', 4326)
+                //sql = sql.substring(0,sql.length() - 1) + ");";
+                sql += "ST_GeomFromText('POINT(" + json.getDouble(lonFieldName) + " " + json.getDouble(latFieldName) + ")', 4326)" + ");";
+                System.out.println(sql);
                 
                 stmt = c.createStatement();
-                stmt.executeUpdate(sql);                
-                
-                if (num % 1000 == 0) c.commit();
-                
+                stmt.executeUpdate(sql);
+
+                num += 1;
+
+                if (num % 1000 == 0) {
+                    c.commit();
+                }
+
+
+
+                line = br.readLine();
+
+                if (line != null) {
+                    json = new JSONObject(line);
+                }
+
+//                break;
             }
 
             c.commit();
 
             c.close();
 
+            br.close();
+            fr.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -156,7 +238,45 @@ public class Postgresql {
 
     public static void main(String[] args) {
         Postgresql t = new Postgresql();
-        t.run();
+
+        String tableName = "planes3";
+        String filename = "flights.json";
+        String geomFieldName = "geom";
+        String oidFieldName = "oid";
+
+        String serverConn = "pg1:5432/db1";
+        String username = "user1";
+        String password = "user1";
+        String lonFieldName = "lon";
+        String latFieldName = "lat";
+
+        //t.printCreate(tableName, filename, geomFieldName, oidFieldName);
+//        t.run(tableName, filename, geomFieldName, oidFieldName, serverConn, username, password, lonFieldName, latFieldName);
+
+        int numargs = args.length;
+
+        if (numargs != 4 && numargs != 9) {
+            System.err.println("Usage Print Create Table: Postgresql2 <tableName> <fileName> <geomFieldName> <oidFieldName>");
+            System.err.println("Usage Load Data: Postgresql2 <tableName> <fileName> <geomFieldName> <oidFieldName> <serverConn> <username> <password> <lonFieldName> <latFieldName>");
+        } else if (numargs == 4) {
+            tableName = args[0];
+            filename = args[1];
+            geomFieldName = args[2];
+            oidFieldName = args[3];
+            t.printCreate(tableName, filename, geomFieldName, oidFieldName);
+        } else {
+            tableName = args[0];
+            filename = args[1];
+            geomFieldName = args[2];
+            oidFieldName = args[3];
+            serverConn = args[4];
+            username = args[5];
+            password = args[6];
+            lonFieldName = args[7];
+            latFieldName = args[8];
+            
+            t.run(tableName, filename, geomFieldName, oidFieldName, serverConn, username, password, lonFieldName, latFieldName);
+        }
 
     }
 
