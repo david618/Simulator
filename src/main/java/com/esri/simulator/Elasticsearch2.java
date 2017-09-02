@@ -202,7 +202,24 @@ public class Elasticsearch2 {
 
     public static void main(String[] args) {
 
+        /*
+        curl -XPUT 192.168.0.142:1025/simulator/_settings -d '{"index":{"refresh_interval":"60s"}}'; echo
+        
+        {"acknowledged":true}
+
+        
+        curl -XGET 192.168.0.142:1025/simulator/_settings; echo
+        
+        {"simulator":{"settings":{"index":{"refresh_interval":"60s","number_of_shards":"5","provided_name":"simulator","creation_date":"1504313608065","number_of_replicas":"1","uuid":"w19PfzyTSKWxja63MdxJIw","version":{"created":"5050199"}}}}}
+
+        1cpu data node 4,000/s
+        4cpu data node 5,000/s 
+        
+        */
+
         // Command line example: a3:9300 simulator simfile simFile_1000_10s.json 100 1000 20
+        
+        // java -cp target/Simulator.jar com.esri.simulator.Elasticsearch3 http://192.168.0.142:1025/simulator/simFile simFile_1000_10s.json 9000 100000 300
         int numargs = args.length;
         if (numargs != 7 && numargs != 8) {
             System.err.print("Usage: Elasticsearch2 <elastic-search-transports> <cluster-name> <index> <type> <file> <rate> <numrecords> (<elastic-bulk-num>)\n");
