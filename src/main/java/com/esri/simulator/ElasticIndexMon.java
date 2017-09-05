@@ -167,7 +167,7 @@ public class ElasticIndexMon {
                     if (numSamples > 4) {
                         double rateStdErr = regression.getSlopeStdErr();
                         System.out.format("%d , %.2f, %.4f\n", cnt, rcvRate, rateStdErr);
-                    } else if (numSamples > 2) {
+                    } else if (numSamples >= 2) {
                         System.out.format("%d , %.2f\n", cnt, rcvRate);
                     } else {
                         System.out.println("Not enough samples to calculate rate. ");
