@@ -21,6 +21,8 @@
  * Test Class
  *
  * Try using HTTP Post /bulk api
+ * vip: data.elastic.l4lb.thisdcos.directory:9200 http
+ * vip: data.elastic.l4lb.thisdcos.directory:9300 transport
  *
  * Having issues with DCOS Elastic framework and Transport Client
  * The Transport Client works fine with Elasticsearch 5 installed outside of DCOS.
