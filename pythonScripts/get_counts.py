@@ -100,9 +100,6 @@ for host in source_hosts:
         totalcnt = sum(cnts)
         source_cnt += totalcnt
 
-        avgrate = 0
-        avglatency = 0.0
-
         numlat = len(latencies);
 
         while i < num:
@@ -111,13 +108,10 @@ for host in source_hosts:
                 print(str(i) + ":" + str(cnts[i]) + ":" + str(rates[i]))
             else:
                 print(str(i) + ":" + str(cnts[i]) + ":" + str(rates[i]) + ":" + str(latencies[i]))
-            avgrate += cnts[i]/float(totalcnt)*rates[i]
-            if numlat > 0:
-                avglatency += cnts[i]/float(totalcnt)*latencies[i]
             i += 1
 
-        source_rate += avgrate
-        source_latency += avglatency
+        source_rate += sum(rates)
+        source_latency += sum(latencies)/num;
 
         print(data['tm'])
 
@@ -150,9 +144,6 @@ for host in sink_hosts:
         totalcnt = sum(cnts)
         sink_cnt += totalcnt
 
-        avgrate = 0
-        avglatency = 0.0
-
         numlat = len(latencies);
 
         while i < num:
@@ -160,13 +151,10 @@ for host in sink_hosts:
                 print(str(i) + ":" + str(cnts[i]) + ":" + str(rates[i]))
             else:
                 print(str(i) + ":" + str(cnts[i]) + ":" + str(rates[i]) + ":" + str(latencies[i]))
-            avgrate += cnts[i]/float(totalcnt)*rates[i]
-            if numlat > 0:
-                avglatency += cnts[i]/float(totalcnt)*latencies[i]
             i += 1
 
-        sink_rate += avgrate
-        sink_latency += avglatency
+        sink_rate += sum(rates)
+        sink_latency += sum(latencies)/num
 
         print(data['tm'])
 
