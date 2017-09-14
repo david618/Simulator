@@ -129,9 +129,10 @@ public class FeatureLayerMon {
 
                         if (numSamples > 2) {
                             double rcvRate = regression.getSlope() * 1000;
-                            System.out.println(numSamples + "," + t1 + "," + cnt1 + "," + rcvRate);
+                            System.out.format("%d,%d,%d,%.0f\n",numSamples,t1,cnt1,rcvRate);
                         } else {
-                            System.out.println(numSamples + "," + t1 + "," + cnt1);
+                            //System.out.println(numSamples + "," + t1 + "," + cnt1);
+                            System.out.format("%d,%d,%d\n",numSamples,t1,cnt1);
                         }                        
                         // Add to Linear Regression
                         regression.addData(t1, cnt1);
