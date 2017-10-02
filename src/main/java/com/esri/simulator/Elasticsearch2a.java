@@ -27,6 +27,7 @@ import java.net.InetAddress;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -40,12 +41,13 @@ import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.json.JSONObject;
 
 /**
  *
  * @author david
  */
-public class Elasticsearch2 {
+public class Elasticsearch2a {
 
     String esnodes;
     String clusterName;
@@ -54,7 +56,7 @@ public class Elasticsearch2 {
     Integer esbulk;
     Client client;
 
-    public Elasticsearch2(String esnodes, String clusterName, String idx, String typ, Integer esbulk) {
+    public Elasticsearch2a(String esnodes, String clusterName, String idx, String typ, Integer esbulk) {
 
         try {
 
@@ -164,6 +166,14 @@ public class Elasticsearch2 {
                 linesIt = lines.iterator();  // Reset Iterator
             }
             String line = linesIt.next();
+            
+            // Parse the line pull 
+            JSONObject lineJson = new JSONObject(line);
+            
+            Date date = new Date(lineJson.getLong("ts"));
+            
+            Long eptime = date.getTime();
+                                              
 
             bulkProcessor.add(new IndexRequest(this.idx, this.typ).source(line));
 
@@ -264,7 +274,7 @@ public class Elasticsearch2 {
 //        System.out.println("rate: " + rate);
 //        System.out.println("numRecords: " + numRecords);
 //        System.out.println("elasticBulk: " + elasticBulk);
-            Elasticsearch2 t = new Elasticsearch2(transports, clusterName, idx, typ, elasticBulk);
+            Elasticsearch2a t = new Elasticsearch2a(transports, clusterName, idx, typ, elasticBulk);
             t.sendFile(filename, rate, numRecords);
 
         }

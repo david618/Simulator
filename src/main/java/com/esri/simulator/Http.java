@@ -37,7 +37,11 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 
 /**
  *
@@ -49,7 +53,7 @@ public class Http {
     // Tell the server I'm Firefox
     private final String USER_AGENT = "Mozilla/5.0";
 
-    private HttpClient httpClient;
+    private CloseableHttpClient httpClient;
     private HttpPost httpPost;
 
 
@@ -73,9 +77,12 @@ public class Http {
         //httpPost.setHeader("Content-type","plain/text");
         httpPost.setHeader("Content-type","application/json");
 
-        HttpResponse resp = httpClient.execute(httpPost);
+        CloseableHttpResponse resp = httpClient.execute(httpPost);
+        
+        HttpEntity respEntity = resp.getEntity();
+        EntityUtils.consume(respEntity);
 
-        httpPost.releaseConnection();
+        //httpPost.releaseConnection();
     }
 
     
