@@ -53,7 +53,8 @@ public class Http {
     // Tell the server I'm Firefox
     private final String USER_AGENT = "Mozilla/5.0";
 
-    private CloseableHttpClient httpClient;
+    //private CloseableHttpClient httpClient;
+    private HttpClient httpClient;
     private HttpPost httpPost;
 
 
@@ -77,12 +78,14 @@ public class Http {
         //httpPost.setHeader("Content-type","plain/text");
         httpPost.setHeader("Content-type","application/json");
 
-        CloseableHttpResponse resp = httpClient.execute(httpPost);
+        HttpResponse resp = httpClient.execute(httpPost);
+        //CloseableHttpResponse resp = httpClient.execute(httpPost);
         
-        HttpEntity respEntity = resp.getEntity();
-        EntityUtils.consume(respEntity);
+        // Using EntityUtils.consume hurt my kafkaHttp; did not help other ingest
+        //HttpEntity respEntity = resp.getEntity();
+        //EntityUtils.consume(respEntity);
 
-        //httpPost.releaseConnection();
+        httpPost.releaseConnection();
     }
 
     
