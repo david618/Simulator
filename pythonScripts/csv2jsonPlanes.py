@@ -27,8 +27,8 @@ if __name__ == '__main__':
         row['dist'] = float(field[3])
         row['bearing'] = float(field[4])
         row['rtid'] = int(field[5])
-        row['orig'] = field[6]
-        row['dest'] = field[7]
+        row['orig'] = field[6].replace('"','')
+        row['dest'] = field[7].replace('"','')
         row['secsToDep'] = int(field[8])
         row['lon'] = float(field[9])
         row['lat'] = float(field[10])
