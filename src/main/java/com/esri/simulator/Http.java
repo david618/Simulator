@@ -17,14 +17,13 @@
  *     David Jennings
  */
 
-/*
+ /*
  * Sends lines of a text file to a HTTP Server using HTTP Post
  * Lines are sent at a specified rate.
  * 
  * Creator: David Jennings
  */
 package com.esri.simulator;
-
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -39,8 +38,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 
 /**
@@ -48,27 +51,32 @@ import org.apache.http.util.EntityUtils;
  * @author david
  */
 public class Http {
+
     private String url;
 
     // Tell the server I'm Firefox
     private final String USER_AGENT = "Mozilla/5.0";
 
     //private CloseableHttpClient httpClient;
-    private HttpClient httpClient;
+    private CloseableHttpClient httpClient;
     private HttpPost httpPost;
-
 
     public Http(String url) throws Exception {
 
-
         this.url = url;
 
-        httpClient = HttpClientBuilder.create().build();
+        SSLContextBuilder builder = new SSLContextBuilder();
+        builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
+        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
+                builder.build());
+        httpClient = HttpClients.custom().setSSLSocketFactory(
+                sslsf).build();
+
+        //httpClient = HttpClientBuilder.create().build();
 
         httpPost = new HttpPost(url);
 
     }
-
 
     private void postLine(String line) throws Exception {
 
@@ -76,77 +84,75 @@ public class Http {
 
         httpPost.setEntity(postingString);
         //httpPost.setHeader("Content-type","plain/text");
-        httpPost.setHeader("Content-type","application/json");
+        httpPost.setHeader("Content-type", "application/json");
 
         HttpResponse resp = httpClient.execute(httpPost);
         //CloseableHttpResponse resp = httpClient.execute(httpPost);
-        
+
         // Using EntityUtils.consume hurt my kafkaHttp; did not help other ingest
         //HttpEntity respEntity = resp.getEntity();
         //EntityUtils.consume(respEntity);
-
         httpPost.releaseConnection();
     }
 
-    
     /**
-     * 
+     *
      * @param filename File with lines of data to be sent.
      * @param rate Rate in lines per second to send.
-     * @param numToSend Number of lines to send. If more than number of lines in file will resend from start.
-     * @param burstDelay Number of milliseconds to burst at; set to 0 to send one line at a time 
-     * @param tweak Used to tweak the actual send rate adjusting for hardware.  (optional)
+     * @param numToSend Number of lines to send. If more than number of lines in
+     * file will resend from start.
+     * @param burstDelay Number of milliseconds to burst at; set to 0 to send
+     * one line at a time
+     * @param tweak Used to tweak the actual send rate adjusting for hardware.
+     * (optional)
      */
     public void sendFile(String filename, Integer rate, Integer numToSend, Integer burstDelay, boolean appendTime, Integer tweak) {
         try {
             FileReader fr = new FileReader(filename);
             BufferedReader br = new BufferedReader(fr);
-            
+
             // Read the file into an array
             ArrayList<String> lines = new ArrayList<String>();
-            
-            
+
             String line;
             while ((line = br.readLine()) != null) {
-                lines.add(line);                
+                lines.add(line);
             }
-            
+
             br.close();
             fr.close();
-            
+
             Iterator<String> linesIt = lines.iterator();
-            
+
             // Get the System Time
             LocalDateTime st = LocalDateTime.now();
 
             Integer cnt = 0;
-            
+
             /*
                 For rates < 100/s burst is better
                 For rates > 100/s continous is better            
-            */
-            
-            
+             */
             // *********** SEND Constant Rate using nanosecond delay *********
             if (burstDelay == 0) {
                 // Delay between each send in nano seconds            
                 Double ns_delay = 1000000000.0 / (double) rate;
-                
+
                 // By adding some to the delay you can fine tune to achieve the desired output
                 ns_delay = ns_delay - (tweak * 100);
-                
+
                 long ns = ns_delay.longValue();
-                if (ns < 0) ns = 0;  // can't be less than 0 
-
-
-
+                if (ns < 0) {
+                    ns = 0;  // can't be less than 0 
+                }
 
                 while (cnt < numToSend) {
                     cnt += 1;
                     LocalDateTime ct = LocalDateTime.now();
 
-                    if (!linesIt.hasNext()) linesIt = lines.iterator();  // Reset Iterator
-
+                    if (!linesIt.hasNext()) {
+                        linesIt = lines.iterator();  // Reset Iterator
+                    }
                     final long stime = System.nanoTime();
 
                     if (appendTime) {
@@ -157,12 +163,9 @@ public class Http {
                         line = linesIt.next() + "\n";
                     }
 
-
-
                     postLine(line);
                     //System.out.println(line);
 
-                    
                     long etime = 0;
                     do {
                         // This approach uses a lot of CPU                    
@@ -170,16 +173,18 @@ public class Http {
                         // Adding the following sleep for a few microsecond reduces the load
                         // However, it also effects the through put
                         //Thread.sleep(0,100);  
-                    } while (stime + ns >= etime);                
+                    } while (stime + ns >= etime);
 
                 }
             } else {
                 // *********** SEND in bursts every msDelay ms  *********
 
                 Integer msDelay = burstDelay;
-                Integer numPerBurst = Math.round(rate / 1000 * msDelay); 
+                Integer numPerBurst = Math.round(rate / 1000 * msDelay);
 
-                if (numPerBurst < 1) numPerBurst = 1;
+                if (numPerBurst < 1) {
+                    numPerBurst = 1;
+                }
 
                 while (cnt < numToSend) {
                     cnt += numPerBurst;
@@ -187,8 +192,9 @@ public class Http {
                     Integer i = 0;
                     while (i < numPerBurst) {
                         i += 1;
-                        if (!linesIt.hasNext()) linesIt = lines.iterator();  // Reset Iterator
-
+                        if (!linesIt.hasNext()) {
+                            linesIt = lines.iterator();  // Reset Iterator
+                        }
 
                         if (appendTime) {
                             line = linesIt.next() + "," + String.valueOf(System.currentTimeMillis()) + "\n";
@@ -196,60 +202,60 @@ public class Http {
                             line = linesIt.next() + "\n";
                         }
 
-
                         postLine(line);
 
                     }
                     // If you remove some part of the time which is used for sending
-                    
+
                     Integer delay = msDelay - tweak;
-                    if (delay < 0) delay = 0;
-                    
+                    if (delay < 0) {
+                        delay = 0;
+                    }
+
                     Thread.sleep(delay);
                 }
-            
-            }            
+
+            }
             Double sendRate = 0.0;
 
-            if (st != null ) {
+            if (st != null) {
                 LocalDateTime et = LocalDateTime.now();
 
                 Duration delta = Duration.between(st, et);
 
                 Double elapsedSeconds = (double) delta.getSeconds() + delta.getNano() / 1000000000.0;
 
-                sendRate = (double) cnt / elapsedSeconds;                
-            }                
+                sendRate = (double) cnt / elapsedSeconds;
+            }
 
-            System.out.println(cnt + "," + sendRate);            
-            
+            System.out.println(cnt + "," + sendRate);
+
         } catch (Exception e) {
             // Could fail on very large files that would fill heap space 
 //            System.out.println(con.toString());
             e.printStackTrace();
-            
+
         }
     }
-    
+
     /**
      * Forwards to sendFile with tweak default value of 0.
+     *
      * @param filename
      * @param rate
      * @param numToSend
-     * @param burstDelay 
+     * @param burstDelay
      */
     public void sendFile(String filename, Integer rate, Integer numToSend, Integer burstDelay, boolean appendTime) {
         // tweak at 0
         sendFile(filename, rate, numToSend, burstDelay, appendTime, 0);
     }
-    
-    
-    public static void main(String args[]) throws Exception {
-       
-        // Example Command Line args: localhost:8001 simFile_1000_10s.dat 1000 10000
 
+    public static void main(String args[]) throws Exception {
+
+        // Example Command Line args: localhost:8001 simFile_1000_10s.dat 1000 10000
         int numargs = args.length;
-        if (numargs != 4 && numargs != 5 ) {
+        if (numargs != 4 && numargs != 5) {
             // append append time option was added to support end-to-end latency; I used it for Trinity testing but it's a little confusing
             //System.err.print("Usage: Http <url> <file> <rate> <numrecords> (<append-time-csv>)\n");
             System.err.print("Usage: Http <url> <file> <rate> <numrecords> \n");
@@ -265,9 +271,7 @@ public class Http {
             Http t = new Http(url);
             t.sendFile(file, rate, numrecords, 0, appendTime);
 
-
         }
 
-        
     }
 }
