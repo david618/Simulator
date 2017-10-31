@@ -83,7 +83,7 @@ Usage: ElasticIndexMon &lt;ElasticsearchServerPort&gt; &lt;Index/Type&gt; (&lt;u
 
 Example:
 
-$ java -cp target/Simulator.jar com.esri.simulator.ElasticIndexMon 172.17.2.5:9200 satellites/satellites "" "" 60000
+$ java -cp target/Simulator.jar com.esri.simulator.ElasticIndexMon 172.17.2.5:9200 satellites/satellites "" "" 60
 
 - Elasticsearch running on 172.17.2.5 on default port of 9200
 - The index name is satellites and so is the type (satellites/satellites)
@@ -98,7 +98,7 @@ Monitors a Kafka Topic count and measures and reports rate of change in count.
 $ java -cp target/Simulator.jar com.esri.simulator.KafkaTopicMon
 Usage: KakfaTopicMon &lt;brokers&gt; &lt;topic&gt; (&lt;sampleRateMS&gt;)
 
-$ java -cp target/Simulator.jar com.esri.simulator.KafkaTopicMon 172.17.2.5:9528 satellites-in 60000
+$ java -cp target/Simulator.jar com.esri.simulator.KafkaTopicMon 172.17.2.5:9528 satellites-in 60
 
 - Connects to Kafka on 172.17.2.5 on port 9528 
 - Gets counts for the satellites-in topic
