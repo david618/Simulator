@@ -46,7 +46,7 @@ import java.util.Iterator;
  *
  * @author david
  */
-public class Tcp {
+public class TcpOLD {
 
     private String server;
     private Integer port;
@@ -61,7 +61,7 @@ public class Tcp {
         return port;
     }
 
-    public Tcp(String server, Integer port) {
+    public TcpOLD(String server, Integer port) {
         this.server = server;
         this.port = port;
 
@@ -277,10 +277,10 @@ public class Tcp {
             System.err.println("burstDelay in ms; defaults to 0; messages are sent at constant rate");
             System.err.println("append-time defaults to false; Adds system time as extra parameter to each request. ");
         } else {
-            // Initial the Tcp Class with the server and port
+            // Initial the TcpOLD Class with the server and port
             if (numargs >=5 && numargs <=7) {
                 
-                Tcp t = new Tcp(args[0], Integer.parseInt(args[1]));
+                TcpOLD t = new TcpOLD(args[0], Integer.parseInt(args[1]));
 
                 switch (numargs) {
                     case 5: 
