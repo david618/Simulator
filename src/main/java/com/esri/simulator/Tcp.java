@@ -31,7 +31,7 @@
  *         BurstDelay = 100: Rate with 3% of requested rate
  *         Peak around 150,000/s on my computer i7 with 32GB RAM
  * 
- * 7 Sep 2017: Added Tcp2: If a DNS name is provide a lookup is done and a socket is opened to each
+ * 7 Sep 2017: Added Tcp: If a DNS name is provide a lookup is done and a socket is opened to each
  *      ip associated with the name.  tcp-kafka.marathon.mesos might have 4 ip; each ip gets a socket.
  *      With this change I could get rates with 4 instances up to around 500,000/s on Azure.
  * 
@@ -56,7 +56,7 @@ import org.xbill.DNS.Type;
  *
  * @author david
  */
-public class Tcp2 {
+public class Tcp {
 
     private static final String IPADDRESS_PATTERN
             = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
@@ -78,7 +78,7 @@ public class Tcp2 {
         return port;
     }
 
-    public Tcp2(String server, Integer port) {
+    public Tcp(String server, Integer port) {
         this.server = server;
         this.port = port;
 
@@ -327,10 +327,10 @@ public class Tcp2 {
             System.err.println("burstDelay in ms; defaults to 0; messages are sent at constant rate");
             System.err.println("append-time defaults to false; Adds system time as extra parameter to each request. ");
         } else {
-            // Initial the Tcp2 Class with the server and port
+            // Initial the Tcp Class with the server and port
             if (numargs >= 5 && numargs <= 7) {
 
-                Tcp2 t = new Tcp2(args[0], Integer.parseInt(args[1]));
+                Tcp t = new Tcp(args[0], Integer.parseInt(args[1]));
 
                 switch (numargs) {
                     case 5:
