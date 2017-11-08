@@ -143,6 +143,9 @@ public class ElasticIndexMon {
                     stcnt = cnt1;
 
                 } else if (cnt1 > cnt2) {
+                    // Add to Linear Regression
+                    regression.addData(t1, cnt1);
+                    
                     // Increase number of samples
                     numSamples += 1;
                     if (numSamples > 2) {
@@ -152,8 +155,6 @@ public class ElasticIndexMon {
                         System.out.format("%d,%d,%d\n",numSamples,t1,cnt1);                        
                     }
 
-                    // Add to Linear Regression
-                    regression.addData(t1, cnt1);
 
                 } else if (cnt1 == cnt2 && numSamples > 0) {
                     numSamples -= 1;
