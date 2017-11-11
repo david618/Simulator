@@ -102,6 +102,9 @@ public class KafkaTopicMon {
                 // Increase number of samples
                 numSamples += 1;
 
+                // Add to Linear Regression
+                regression.addData(t1, cnt1);
+                
                 if (numSamples > 2) {
                     double rcvRate = regression.getSlope() * 1000;
                     System.out.println(numSamples + "," + t1 + "," + cnt1 + "," + String.format("%.0f", rcvRate));
@@ -109,8 +112,6 @@ public class KafkaTopicMon {
                     System.out.println(numSamples + "," + t1 + "," + cnt1);
                 }
 
-                // Add to Linear Regression
-                regression.addData(t1, cnt1);
 
             } else if (cnt1 == cnt2 && numSamples > 0) {
                 numSamples -= 1;
