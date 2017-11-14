@@ -28,6 +28,11 @@
  * The Transport Client works fine with Elasticsearch 5 installed outside of DCOS.
  *
  * David Jennings
+ * 
+ * 13 Nov 2017
+ * NOTE: Based on testing using sparktest; I suspect if I hyper-threaded this like I did for tcp I could get faster rates.
+ * In a Round-robin fashion send requests to each of the elasticsearch nodes.  
+ * 
  */
 package com.esri.simulator;
 
