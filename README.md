@@ -79,7 +79,7 @@ $ java -cp Simulator.jar com.esri.simulator.FeatureLayerMon http://dj52web.westu
 Monitors a Elasticsearch Index count and measures and reports rate of change in count.
 
 $ java -cp target/Simulator.jar com.esri.simulator.ElasticIndexMon
-Usage: ElasticIndexMon &lt;ElasticsearchServerPort&gt; &lt;Index/Type&gt; (&lt;username&gt; &lt;password> &lt;sampleRateMS&gt;)
+Usage: ElasticIndexMon &lt;ElasticsearchServerPort&gt; &lt;Index/Type&gt; (&lt;username&gt; &lt;password> &lt;sampleRate&gt;)
 
 Example:
 
@@ -96,13 +96,13 @@ $ java -cp target/Simulator.jar com.esri.simulator.ElasticIndexMon 172.17.2.5:92
 Monitors a Kafka Topic count and measures and reports rate of change in count.
 
 $ java -cp target/Simulator.jar com.esri.simulator.KafkaTopicMon
-Usage: KakfaTopicMon &lt;brokers&gt; &lt;topic&gt; (&lt;sampleRateMS&gt;)
+Usage: KakfaTopicMon &lt;brokers&gt; &lt;topic&gt; (&lt;sampleRate&gt;)
 
 $ java -cp target/Simulator.jar com.esri.simulator.KafkaTopicMon 172.17.2.5:9528 satellites-in 60
 
 - Connects to Kafka on 172.17.2.5 on port 9528 
 - Gets counts for the satellites-in topic
-- The sample rate is set to 60 ms which is 60 seconds
+- The sample rate is set to 60; which is 60 seconds
 - At or around Kafka 0.10.x; when starting the tool displays a bunch of what looks like INFO messages from logger; if you append a redirect for error messages (e.g.  2>stderr.txt) to the command the messages will be hidden. Tried to configure logger for the tool but it did not help with these Error messages.
 
 ### com.esri.simulator.TcpSink
