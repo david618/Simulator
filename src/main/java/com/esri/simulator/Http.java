@@ -70,7 +70,7 @@ public class Http {
 
     }
 
-    private void postLine(String line) throws Exception {
+    private int postLine(String line) throws Exception {
 
         StringEntity postingString = new StringEntity(line);
 
@@ -81,10 +81,14 @@ public class Http {
         HttpResponse resp = httpClient.execute(httpPost);
         //CloseableHttpResponse resp = httpClient.execute(httpPost);
 
+        int respCode = resp.getStatusLine().getStatusCode();
+        
         // Using EntityUtils.consume hurt my kafkaHttp; did not help other ingest
         //HttpEntity respEntity = resp.getEntity();
         //EntityUtils.consume(respEntity);
         httpPost.releaseConnection();
+        
+        return respCode;
     }
 
     /**
@@ -120,6 +124,7 @@ public class Http {
             Long st = System.currentTimeMillis();
 
             Integer cnt = 0;
+            Integer cntErr = 0;
             
             // Tweak used to adjust delays to try and get requested rate
             Long tweak = 0L;            
@@ -147,7 +152,12 @@ public class Http {
                         // Calculate rate and adjust as needed
                         Double curRate = (double) cnt / (System.currentTimeMillis() - st) * 1000;
 
-                        System.out.println(cnt + "," + String.format("%.0f", curRate));
+                        if (cntErr > 0) {
+                            System.out.println(cnt + "," + String.format("%.0f", curRate) + "," + cntErr + " not 200");
+                        } else {
+                            System.out.println(cnt + "," + String.format("%.0f", curRate));
+                        }
+                        
                     }
 
                     if (cnt % 1000 == 0 && cnt > 0) {
@@ -184,7 +194,9 @@ public class Http {
                         line = linesIt.next() + "\n";
                     }
 
-                    postLine(line);
+                    if (postLine(line) != 200) {
+                        cntErr += 1;
+                    }
                     //System.out.println(line);
 
                     long etime = 0;
@@ -258,7 +270,13 @@ public class Http {
             }
             Double sendRate = (double) cnt / (System.currentTimeMillis() - st) * 1000;
 
-            System.out.println(cnt + "," + String.format("%.0f", sendRate));
+            if (cntErr > 0) {
+                System.out.println(cnt + "," + String.format("%.0f", sendRate) + "," + cntErr + " not 200");
+            } else {
+                System.out.println(cnt + "," + String.format("%.0f", sendRate));
+            }
+
+            
             
 
         } catch (Exception e) {
