@@ -152,14 +152,24 @@ public class Http2 {
                     System.out.println(cnts + "," + cntErr + "," + String.format("%.0f", curRate));
 
                     // End if the lbq is empty
-                    if (lbq.size() == 0) break;
+                    if (lbq.size() == 0) {
+                        System.out.println("Queue Empry");
+                        break;
+                    }
                     
                     // End if the cnts from threads match what was sent
-                    if (cnts >= numToSend) break;
+                    if (cnts >= numToSend) {
+                        System.out.println("Count Sent > Number Requested");
+                        break;
+                    }
                     
                     // End if cnts is changing 
-                    if (cnts == prevCnts) break;
+                    if (cnts == prevCnts) {
+                        System.out.println("Counts are not changing.");break;
+                    }
                     
+                    cnts = 0;
+                    cntErr = 0;
                     prevCnts = cnts;
 
                 }                
