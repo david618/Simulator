@@ -132,9 +132,37 @@ public class Http2 {
 
             }
 
-            // Wait for Queue to Empty 
-            while (lbq.size() > 0) {
-                Thread.sleep(1000);
+            int cnts = 0;
+            int cntErr = 0;
+            int prevCnts = 0;
+            
+            while (true) {
+                if (System.currentTimeMillis() - timeLastDisplayedRate > 5000) {
+                    // Calculate rate and output every 5000ms 
+                    timeLastDisplayedRate = System.currentTimeMillis();
+
+                    // Get Counts from Threads
+                    for (HttpPosterThread thread : threads) {
+                        cnts += thread.getCnt();
+                        cntErr += thread.getCntErr();
+                    }
+
+                    Double curRate = (double) cnts / (System.currentTimeMillis() - st) * 1000;
+
+                    System.out.println(cnts + "," + cntErr + "," + String.format("%.0f", curRate));
+
+                    // End if the lbq is empty
+                    if (lbq.size() == 0) break;
+                    
+                    // End if the cnts from threads match what was sent
+                    if (cnts >= numToSend) break;
+                    
+                    // End if cnts is changing 
+                    if (cnts == prevCnts) break;
+                    
+                    prevCnts = cnts;
+
+                }                
             }
 
             // Terminate Threads
@@ -142,8 +170,6 @@ public class Http2 {
                 thread.terminate();
             }
 
-            int cnts = 0;
-            int cntErr = 0;
             for (HttpPosterThread thread : threads) {
                 cnts += thread.getCnt();
                 cntErr += thread.getCntErr();
@@ -151,7 +177,7 @@ public class Http2 {
 
             Double sendRate = (double) cnts / (System.currentTimeMillis() - st) * 1000;
 
-            System.out.println(cnts + "," + cntErr + "," + String.format("%.0f", sendRate) );
+            System.out.println(cnts + "," + cntErr + "," + String.format("%.0f", sendRate));
 
         } catch (Exception e) {
             // Could fail on very large files that would fill heap space 
