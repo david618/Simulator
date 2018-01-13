@@ -135,7 +135,7 @@ public class Http2 {
             int cnts = 0;
             int cntErr = 0;
             int prevCnts = 0;
-            
+
             while (true) {
                 if (System.currentTimeMillis() - timeLastDisplayedRate > 5000) {
                     // Calculate rate and output every 5000ms 
@@ -156,29 +156,33 @@ public class Http2 {
                         System.out.println("Queue Empry");
                         break;
                     }
-                    
+
                     // End if the cnts from threads match what was sent
                     if (cnts >= numToSend) {
                         System.out.println("Count Sent > Number Requested");
                         break;
                     }
-                    
+
                     // End if cnts is changing 
                     if (cnts == prevCnts) {
-                        System.out.println("Counts are not changing.");break;
+                        System.out.println("Counts are not changing.");
+                        break;
                     }
-                    
+
                     cnts = 0;
                     cntErr = 0;
                     prevCnts = cnts;
 
-                }                
+                }
             }
 
             // Terminate Threads
             for (HttpPosterThread thread : threads) {
                 thread.terminate();
             }
+
+            cnts = 0;
+            cntErr = 0;
 
             for (HttpPosterThread thread : threads) {
                 cnts += thread.getCnt();
@@ -189,6 +193,8 @@ public class Http2 {
 
             System.out.println(cnts + "," + cntErr + "," + String.format("%.0f", sendRate));
 
+            System.exit(0);
+            
         } catch (Exception e) {
             // Could fail on very large files that would fill heap space 
 //            System.out.println(con.toString());
