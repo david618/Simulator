@@ -31,17 +31,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
 
-
 /**
  *
  * @author david
  */
 public class Http2 {
 
-
-
     LinkedBlockingQueue<String> lbq = new LinkedBlockingQueue<>();
-
 
     /**
      *
@@ -59,7 +55,7 @@ public class Http2 {
             BufferedReader br = new BufferedReader(fr);
 
             // Read the file into an array
-            ArrayList<String> lines = new ArrayList<String>();
+            ArrayList<String> lines = new ArrayList<>();
 
             String line;
             while ((line = br.readLine()) != null) {
@@ -75,26 +71,6 @@ public class Http2 {
             Long st = System.currentTimeMillis();
 
             Integer cnt = 0;
-            Integer cntErr = 0;
-
-            // Tweak used to adjust delays to try and get requested rate
-            Long tweak = 0L;
-
-            /*
-                For rates < 100/s burst is better
-                For rates > 100/s continous is better            
-             */
-            // *********** SEND Constant Rate using nanosecond delay *********
-            // Delay between each send in nano seconds            
-            Double ns_delay = 1000000000.0 / (double) rate;
-
-            // By adding some to the delay you can fine tune to achieve the desired output
-            ns_delay = ns_delay - (tweak * 100);
-
-            long ns = ns_delay.longValue();
-            if (ns < 0) {
-                ns = 0;  // can't be less than 0 
-            }
 
             // Create the HttpPosterThread
             HttpPosterThread[] threads = new HttpPosterThread[numThreads];
@@ -103,48 +79,34 @@ public class Http2 {
                 threads[i] = new HttpPosterThread(lbq, url);
                 threads[i].start();
             }
-            
-            
-            
+
+            Long timeLastDisplayedRate = System.currentTimeMillis();
+            Long timeStartedBatch = System.currentTimeMillis();
+
             while (cnt < numToSend) {
 
-                if (cnt % rate == 0 && cnt > 0) {
-                    // Calculate rate and adjust as needed
-                    Double curRate = (double) cnt / (System.currentTimeMillis() - st) * 1000;
+                if (System.currentTimeMillis() - timeLastDisplayedRate > 5000) {
+                    // Calculate rate and output every 5000ms 
+                    timeLastDisplayedRate = System.currentTimeMillis();
 
-                    if (cntErr > 0) {
-                        System.out.println(cnt + "," + String.format("%.0f", curRate) + "," + cntErr + " not 200");
-                    } else {
-                        System.out.println(cnt + "," + String.format("%.0f", curRate));
+                    int cnts = 0;
+                    int cntErr = 0;
+
+                    // Get Counts from Threads
+                    for (HttpPosterThread thread : threads) {
+                        cnts += thread.getCnt();
+                        cntErr += thread.getCntErr();
                     }
 
-                }
+                    Double curRate = (double) cnts / (System.currentTimeMillis() - st) * 1000;
 
-                if (cnt % 1000 == 0 && cnt > 0) {
-                    // Calculate rate and adjust as needed
-                    Double curRate = (double) cnt / (System.currentTimeMillis() - st) * 1000;
-
-                    // rate difference as percentage 
-                    Double rateDiff = (rate - curRate) / rate;
-
-                    // Add or subracts up to 100ns 
-                    tweak = (long) (rateDiff * rate);
-
-                    // By adding some to the delay you can fine tune to achieve the desired output
-                    ns = ns - tweak;
-                    if (ns < 0) {
-                        ns = 0;  // can't be less than 0 
-                    }
+                    System.out.println(cnts + "," + cntErr + "," + String.format("%.0f", curRate));
 
                 }
-
-                cnt += 1;
 
                 if (!linesIt.hasNext()) {
                     linesIt = lines.iterator();  // Reset Iterator
                 }
-
-                final long stime = System.nanoTime();
 
                 if (appendTime) {
                     // assuming CSV
@@ -155,37 +117,41 @@ public class Http2 {
                 }
 
                 lbq.put(line);
-                //System.out.println(line);
 
-                long etime = 0;
-                do {
-                    // This approach uses a lot of CPU                    
-                    etime = System.nanoTime();
-                    // Adding the following sleep for a few microsecond reduces the load
-                    // However, it also effects the through put
-                    //Thread.sleep(0,100);  
-                } while (stime + ns >= etime);
+                cnt += 1;
+
+                if (cnt % rate == 0) {
+                    // Wait until one second before queuing next rate events into lbq
+                    // Send rate events wait until 1 second is up
+                    long timeToWait = 1000 - (System.currentTimeMillis() - timeStartedBatch);
+                    if (timeToWait > 0) {
+                        Thread.sleep(timeToWait);
+                    }
+                    timeStartedBatch = System.currentTimeMillis();
+                }
 
             }
-            
-            // Close Threads
-            
+
+            // Wait for Queue to Empty 
             while (lbq.size() > 0) {
                 Thread.sleep(1000);
-            }            
-            
-            
-            for (int i = 0; i < threads.length; i++) {
-                threads[i].terminate();
-            }            
-
-            Double sendRate = (double) cnt / (System.currentTimeMillis() - st) * 1000;
-
-            if (cntErr > 0) {
-                System.out.println(cnt + "," + String.format("%.0f", sendRate) + "," + cntErr + " not 200");
-            } else {
-                System.out.println(cnt + "," + String.format("%.0f", sendRate));
             }
+
+            // Terminate Threads
+            for (HttpPosterThread thread : threads) {
+                thread.terminate();
+            }
+
+            int cnts = 0;
+            int cntErr = 0;
+            for (HttpPosterThread thread : threads) {
+                cnts += thread.getCnt();
+                cntErr += thread.getCntErr();
+            }
+
+            Double sendRate = (double) cnts / (System.currentTimeMillis() - st) * 1000;
+
+            System.out.println(cnts + "," + cntErr + "," + String.format("%.0f", sendRate) );
 
         } catch (Exception e) {
             // Could fail on very large files that would fill heap space 
@@ -211,14 +177,14 @@ public class Http2 {
 
             Integer numthreads = 1;
             if (numargs > 4) {
-                numthreads = Integer.parseInt(args[3]);
+                numthreads = Integer.parseInt(args[4]);
             }
 
             Boolean appendTime = false;
             if (numargs == 6) {
-                appendTime = Boolean.parseBoolean(args[4]);
+                appendTime = Boolean.parseBoolean(args[5]);
             }
-            
+
             Http2 t = new Http2();
             t.sendFile(url, file, rate, numrecords, numthreads, appendTime);
 
