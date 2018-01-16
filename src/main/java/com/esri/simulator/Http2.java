@@ -153,13 +153,13 @@ public class Http2 {
 
                     // End if the lbq is empty
                     if (lbq.size() == 0) {
-                        System.out.println("Queue Empry");
+                        System.out.println("Queue Empty");
                         break;
                     }
 
                     // End if the cnts from threads match what was sent
                     if (cnts >= numToSend) {
-                        System.out.println("Count Sent > Number Requested");
+                        System.out.println("Count Sent >= Number Requested");
                         break;
                     }
 
@@ -210,7 +210,11 @@ public class Http2 {
         if (numargs < 4 || numargs > 6) {
             // append append time option was added to support end-to-end latency; I used it for Trinity testing but it's a little confusing
             //System.err.print("Usage: Http <url> <file> <rate> <numrecords> (<append-time-csv>)\n");
-            System.err.print("Usage: Http <url> <file> <rate> <numrecords> (<numthreads=1>) \n");
+            // url: http://server:ip/path 
+            // Consider including url: app(http-kafka)/path with this look up ip:port using mesos
+            // e.g.  curl http://master.mesos:8080/v2/apps/http-kafka | jq '[.app.tasks[] | {ip: .ipAddresses[].ipAddress, port: .ports[0]}]'
+            // app(http-kafka) would be replaced with http://ip:port if more than one then round-robin assign to each thread
+            System.err.print("Usage: Http2 <url> <file> <rate> <numrecords> (<numthreads=1>) \n");
         } else {
             String url = args[0];
             String file = args[1];

@@ -507,6 +507,70 @@ public class MarathonInfo {
         return returnJson.toString();
 
     }
+    
+    public JSONArray getIPPort(String appName, int portIndex) {
+        JSONArray ipPorts = new JSONArray();
+       
+        try {
+            // Get the application endoint 
+            String url = "http://marathon.mesos:8080/v2/apps/" + appName;
+
+            SSLContextBuilder builder = new SSLContextBuilder();
+            builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
+            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
+                    builder.build());
+            CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(
+                    sslsf).build();
+
+            HttpGet request = new HttpGet(url);
+
+            HttpResponse response = httpclient.execute(request);
+            BufferedReader rd = new BufferedReader(
+                    new InputStreamReader(response.getEntity().getContent()));
+
+            StringBuffer result = new StringBuffer();
+            String line = "";
+            while ((line = rd.readLine()) != null) {
+                result.append(line);
+            }
+
+            //System.out.println(result);
+            JSONObject json = new JSONObject(result.toString());
+            JSONObject app = json.getJSONObject("app");
+            JSONArray tasks = app.getJSONArray("tasks");
+            
+            int i = 0;
+                while (i < tasks.length()) {
+                JSONObject task = tasks.getJSONObject(i);
+                String eip = task.getString("host");
+                
+                JSONArray ports = task.getJSONArray("ports");
+                int port = ports.getInt(portIndex);
+            
+                JSONObject ipPort = new JSONObject();
+                ipPort.append("ip", eip);
+                ipPort.append("port", port);
+                
+                ipPorts.put(ipPort);
+                
+                
+            }
+            
+
+
+            // Get Endpoints 172.17.2.5:17962/v1/endpoints/data  (vip name)
+            // Use address to get Cluster Name
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+
+        System.out.println(ipPorts.toString(1));
+                
+        
+        return ipPorts;
+    }
+
+    
 
     public static void main(String[] args) {
 
