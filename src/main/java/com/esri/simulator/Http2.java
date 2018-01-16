@@ -30,6 +30,8 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -67,6 +69,20 @@ public class Http2 {
 
             Iterator<String> linesIt = lines.iterator();
 
+            // See if the url contains app(name)
+            String appPat = "app[(](.*)[)]";
+
+            Pattern pattern = Pattern.compile(appPat);
+            Matcher matcher = pattern.matcher(url);
+
+            String appStr = null;
+            ArrayList<IPPort> ipPorts = null;
+            if (matcher.find()) {
+                appStr = matcher.group();
+                MarathonInfo mi = new MarathonInfo();
+                ipPorts = mi.getIPPorts(matcher.group(1), 0);
+            }
+
             // Get the System Time as st (Start Time)            
             Long st = System.currentTimeMillis();
 
@@ -76,7 +92,15 @@ public class Http2 {
             HttpPosterThread[] threads = new HttpPosterThread[numThreads];
 
             for (int i = 0; i < threads.length; i++) {
-                threads[i] = new HttpPosterThread(lbq, url);
+                if (appStr == null) {
+                    threads[i] = new HttpPosterThread(lbq, url);
+                } else {                    
+                    IPPort ipPort = ipPorts.get(i % ipPorts.size());
+                    
+                    String urlIP = url.replace(appStr, ipPort.toString());
+                    threads[i] = new HttpPosterThread(lbq, urlIP);
+                }
+                
                 threads[i].start();
             }
 
@@ -194,7 +218,7 @@ public class Http2 {
             System.out.println(cnts + "," + cntErr + "," + String.format("%.0f", sendRate));
 
             System.exit(0);
-            
+
         } catch (Exception e) {
             // Could fail on very large files that would fill heap space 
 //            System.out.println(con.toString());
@@ -213,7 +237,7 @@ public class Http2 {
             // url: http://server:ip/path 
             // Consider including url: app(http-kafka)/path with this look up ip:port using mesos
             // e.g.  curl http://master.mesos:8080/v2/apps/http-kafka | jq '[.app.tasks[] | {ip: .ipAddresses[].ipAddress, port: .ports[0]}]'
-            // app(http-kafka) would be replaced with http://ip:port if more than one then round-robin assign to each thread
+            // http://app(http-kafka)/path would be replaced with http://ip:port/path if more than one then round-robin assign to each thread
             System.err.print("Usage: Http2 <url> <file> <rate> <numrecords> (<numthreads=1>) \n");
         } else {
             String url = args[0];

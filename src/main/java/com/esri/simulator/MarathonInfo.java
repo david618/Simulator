@@ -28,6 +28,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -58,7 +59,6 @@ public class MarathonInfo {
      *
      * @param kafkaName
      * @return comma separated list of brokers
-     * @throws Exception
      *
      * Uses the Marathon rest api to get the brokers for the specified KafkaName
      *
@@ -508,8 +508,10 @@ public class MarathonInfo {
 
     }
     
-    public JSONArray getIPPort(String appName, int portIndex) {
-        JSONArray ipPorts = new JSONArray();
+    public ArrayList<IPPort> getIPPorts(String appName, int portIndex) {
+        
+        
+        ArrayList<IPPort> ipPorts = new ArrayList<>();
        
         try {
             // Get the application endoint 
@@ -551,7 +553,7 @@ public class MarathonInfo {
                 ipPort.append("ip", eip);
                 ipPort.append("port", port);
                 
-                ipPorts.put(ipPort);
+                ipPorts.add(new IPPort(eip, port));
                 
                 
             }
@@ -564,7 +566,7 @@ public class MarathonInfo {
             System.err.println(e.getMessage());
         }
 
-        System.out.println(ipPorts.toString(1));
+        System.out.println();
                 
         
         return ipPorts;
