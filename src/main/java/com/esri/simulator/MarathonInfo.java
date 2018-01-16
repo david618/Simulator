@@ -548,14 +548,14 @@ public class MarathonInfo {
                 
                 JSONArray ports = task.getJSONArray("ports");
                 int port = ports.getInt(portIndex);
-            
-                JSONObject ipPort = new JSONObject();
-                ipPort.append("ip", eip);
-                ipPort.append("port", port);
                 
-                ipPorts.add(new IPPort(eip, port));
+                IPPort ipport = new IPPort(eip, port);
+                                
+                ipPorts.add(ipport);
                 
                 i++;
+                
+                System.out.println(ipport);
                 
             }
             
@@ -567,7 +567,6 @@ public class MarathonInfo {
             System.err.println(e.getMessage());
         }
 
-        System.out.println();
                 
         
         return ipPorts;
