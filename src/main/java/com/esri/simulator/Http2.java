@@ -98,7 +98,7 @@ public class Http2 {
                     IPPort ipPort = ipPorts.get((i+1) % ipPorts.size());
                     
                     String urlIP = url.replace(appStr, ipPort.toString());
-                    System.out.println(urlIP);
+                    //System.out.println(urlIP);
                     threads[i] = new HttpPosterThread(lbq, urlIP);
                     
                 }
