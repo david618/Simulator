@@ -91,17 +91,17 @@ public class Http2 {
             // Create the HttpPosterThread
             HttpPosterThread[] threads = new HttpPosterThread[numThreads];
 
-            for (int i = 0; i < threads.length; i++) {
+            for (int i = 1; i <= threads.length; i++) {
                 if (appStr == null) {
-                    threads[i] = new HttpPosterThread(lbq, url);
+                    threads[i-1] = new HttpPosterThread(lbq, url);
                 } else {                    
                     IPPort ipPort = ipPorts.get(i % ipPorts.size());
                     
                     String urlIP = url.replace(appStr, ipPort.toString());
-                    threads[i] = new HttpPosterThread(lbq, urlIP);
+                    threads[i-1] = new HttpPosterThread(lbq, urlIP);
                 }
                 
-                threads[i].start();
+                threads[i-1].start();
             }
 
             Long timeLastDisplayedRate = System.currentTimeMillis();
