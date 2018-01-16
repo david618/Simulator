@@ -555,6 +555,7 @@ public class MarathonInfo {
                 
                 ipPorts.add(new IPPort(eip, port));
                 
+                i++;
                 
             }
             

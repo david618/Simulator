@@ -70,7 +70,7 @@ public class Http2 {
             Iterator<String> linesIt = lines.iterator();
 
             // See if the url contains app(name)
-            String appPat = "app[(](.*)[)]";
+            String appPat = "app\\[(.*)\\]";
 
             Pattern pattern = Pattern.compile(appPat);
             Matcher matcher = pattern.matcher(url);
