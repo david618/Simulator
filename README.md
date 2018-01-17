@@ -82,10 +82,109 @@ $ java -cp Simulator.jar com.esri.simulator.FeatureLayerMon http://dj52web.westu
 
 ### com.esri.simulator.Http
 
+Post lines from a file to a URL.
+
 <pre>
-java -cp target/Simulator.jar com.esri.simulator.Http  http://p1:10104  planes00001.1M 50000 1000000
-Usage: Http <url> <file> <rate> <numrecords>
+java -cp target/Simulator.jar com.esri.simulator.Http  
+Usage: Http &lt;url&gt; &lt;file&gt; &lt;rate&gt; &lt;numrecords&gt;
 </pre>
+
+Parameters
+- url: The url you want to send the ports to
+- file: The name of the file to read lines from 
+- rate: Desired rate. App will try to dynamically adjust to achieve this rate 
+- numrecords: Number of lines to post. Once file is exhausted it will automatically start from top of file again 
+
+Example
+<pre>
+java -cp target/Simulator.jar com.esri.simulator.Http  http:<i></i>//marathon-lb.marathon.mesos:10004/rtgis/receiver/planes/txt  planes00001.1M 500 5000
+</pre>
+
+This command
+- Posts lines from file planes00001.1M to http:<i></i>//marathon-lb.marathon.mesos:10004/rtgis/receiver/planes/txt
+- Tries to send at 500/s
+- Send 5,000 posts; reusing the file as needed.
+
+Example Output
+
+<pre>
+500,395
+1000,410
+1500,418
+2000,426
+2500,432
+3000,437
+3500,440
+4000,422
+4500,426
+5000,428
+</pre>
+
+The command outputs
+- Every rate samples (e.g. 500) output the count and rate 
+- Based on the rate the timing is adjusted to try to achieve the requested rate
+- The rate reported is the rate actually achieved
+
+### com.esri.simulator.Http2 (devlopment)
+
+Post lines from a file to URL. 
+
+Changes
+- Added indication of error (error count) to output
+- Added additional optional parameter to support threads 
+- Added support to lookup ip and ports and send directly to Marathon App instances 
+
+<pre>
+java -cp target/Simulator.jar com.esri.simulator.Http2  
+Usage: Http &lt;url&gt; &lt;file&gt; &lt;rate&gt; &lt;numrecords&gt; (&lt;numthreads=1&gt;)
+</pre>
+
+Parameters
+- url: The url you want to send the ports to. Server name can be "app[marathon-app-name]".
+  - If app[marathon-app-name] is used Http2 looks up ip:port for each instance
+  - Each thread is assigned an ip:port in a round-robin fashion
+- file: The name of the file to read lines from (e.g. planes00001.1M)
+- rate: Desired rate. App will try to dynamically adjust to achieve this rate (e.g. 50000)
+- numrecords: Number of lines to post. Once file is exhausted it will automatically start from top of file again (e.g. 1000000)
+- numthreads: Optional parameter defaults to 1.
+
+Example
+<pre>
+java -cp target/Simulator.jar com.esri.simulator.Http2  http<i></i>://app[sits/rcv-txt-rest-planes]/rtgis/receiver/planes/txt  planes00001.1M 50000 1000000 64
+</pre>
+
+This command
+- Looks up the ports and ip's for each instance of sits/rcv-txt-rest-planes
+- Creates 64 threads; ip and port of instance assigned for each thread (e.g. http:<i></i>//172.17.2.6:3455//rtgis/receiver/planes/txt). The ip:port's are assigned in round-robin fashion.
+- The lines from the file planes00001.1M are added to a shared blocked queue at the rate specified
+- The threads read lines from the queue and send them to the url they were assigned
+
+Exaple Output
+
+<pre>
+172.17.2.9:26264
+172.17.2.8:28203
+172.17.2.4:11865
+172.17.2.6:2152
+172.17.2.7:1718
+172.17.2.5:12370
+15620,0,3042
+31925,0,3150
+48303,0,3191
+...
+969367,0,3339
+987061,0,3343
+1000000,0,3330
+Queue Empty
+1000000,0,3330
+</pre>
+
+The command outputs
+- The IP:PORT's found for this Marathon App.
+- Current Count Sent, Number of Errors (Should be zero), and rate achieved every 5 seconds.
+- The rate send is often less than rate requested; because of back pressure from the endpoint
+
+Number of Errors is the number of responses that were not HTTP 200. This happens if the URL is invalid or the end point is having some problem.
 
 
 
