@@ -140,12 +140,12 @@ Usage: Http &lt;url&gt; &lt;file&gt; &lt;rate&gt; &lt;numrecords&gt; (&lt;numthr
 </pre>
 
 Parameters
-- url: The url you want to send the ports to. Server name can be "app[marathon-app-name]".
-  - If app[marathon-app-name] is used Http2 looks up ip:port for each instance
+- url: The url you want to send the ports to. Server name can be Marathon app name.
+  - If server is specified as app[marathon-app-name]; Http2 looks up ip:port for each instance
   - Each thread is assigned an ip:port in a round-robin fashion
-- file: The name of the file to read lines from (e.g. planes00001.1M)
-- rate: Desired rate. App will try to dynamically adjust to achieve this rate (e.g. 50000)
-- numrecords: Number of lines to post. Once file is exhausted it will automatically start from top of file again (e.g. 1000000)
+- file: The name of the file to read lines from 
+- rate: Desired rate. App will try to dynamically adjust to achieve this rate
+- numrecords: Number of lines to post. Once file is exhausted it will automatically start from top of file again
 - numthreads: Optional parameter defaults to 1.
 
 Example
@@ -154,8 +154,8 @@ java -cp target/Simulator.jar com.esri.simulator.Http2  http<i></i>://app[sits/r
 </pre>
 
 This command
-- Looks up the ports and ip's for each instance of sits/rcv-txt-rest-planes
-- Creates 64 threads; ip and port of instance assigned for each thread (e.g. http:<i></i>//172.17.2.6:3455//rtgis/receiver/planes/txt). The ip:port's are assigned in round-robin fashion.
+- Looks up the ip:port for each instance of sits/rcv-txt-rest-planes Marthon app.
+- Creates 64 threads; then assigns an ip and port each thread (e.g. http:<i></i>//172.17.2.6:3455//rtgis/receiver/planes/txt) in round-robin fashion. Thread 1 gets ip:port 1, Thread 2 gets ip:port2, and so on. If the number of threads is greater than number of ip:ports the ip:port assignment resumes at 1.
 - The lines from the file planes00001.1M are added to a shared blocked queue at the rate specified
 - The threads read lines from the queue and send them to the url they were assigned
 
