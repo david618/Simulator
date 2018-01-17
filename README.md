@@ -32,16 +32,62 @@ After Build; the target folder will contain:
 
 ## Usage
 
-### com.esri.simulator.Tcp
+### com.esri.simulator.Elasticsearch
 
-$ java -cp Simulator-jar-with-dependencies.jar com.esri.simulator.Tcp 
+<pre>
+$ java -cp Simulator-jar-with-dependencies.jar com.esri.simulator.Elasticsearch 
+Usage: Elasticsearch &lt;elastic-search-transports&gt; &lt;cluster-name&gt; &lt;index&gt; &lt;type&gt; &lt;file&gt; &lt;rate&gt; &lt;numrecords&gt; (&lt;elastic-bulk-num&gt;)
+</pre>
 
-Usage: Tcp &lt;server&gt; &lt;port&gt; &lt;file&gt; &lt;rate&gt; &lt;numrecords&gt;
-- Sends lines from file to the specified server and port.  
-- The simulator tries to send numrecords at rate requested.
-- During the run the simulator counts the records and actual rate it was able to send and outputs that to the screen.
-- There is a limit to the rate Tcp can achieve; which depends on hardware and network speed; Memmory seems to be a big limiter on max speed (on i7 computer with 16G of memory max rate was around 150,000/s)
-- There is also a limit on the size of the file. I was able to run with a file containing 5 Million (~100 byte) lines; however, it would not load a 10 Million line file.
+Used to test sending data directly to Elasticsearch from a file.
+
+### com.esri.simulator.ElasticIndexMon
+Monitors a Elasticsearch Index count and measures and reports rate of change in count.
+
+<pre>
+$ java -cp target/Simulator.jar com.esri.simulator.ElasticIndexMon
+Usage: ElasticIndexMon &lt;ElasticsearchServerPort&gt; &lt;Index/Type&gt; (&lt;username&gt; &lt;password> &lt;sampleRate&gt;)
+</pre>
+
+Example:
+
+<pre>
+$ java -cp target/Simulator.jar com.esri.simulator.ElasticIndexMon 172.17.2.5:9200 satellites/satellites "" "" 60
+
+- Elasticsearch running on 172.17.2.5 on default port of 9200
+- The index name is satellites and so is the type (satellites/satellites)
+- The quotes are because I wanted to enter 60 s (as the sample rate)
+</pre>
+
+**NOTE:** For GeoEvent you can get the username/password for the spatiotemportal datastore using datastore tool "listadmins". 
+
+### com.esri.simulator.FeatureLayerMon
+
+<pre>
+$ java -cp Simulator-jar-with-dependencies.jar com.esri.simulator.FeatureLayerMon 
+Usage: FeatureLayerMon &lt;Feature-Layer&gt; (&lt;Seconds-Between-Samples&gt; Default 5 seconds)  
+</pre>
+
+Example:
+
+<pre>
+$ java -cp Simulator.jar com.esri.simulator.FeatureLayerMon http://dj52web.westus.cloudapp.azure.com/arcgis/rest/services/Hosted/FAA-Stream/FeatureServer/0
+</pre>
+
+- The code counts the number of features from the Feature-Layer
+- If no count change is detected it will wait
+- Each time change is detected a sample is added and output to the screen
+- After count stops increasing; least-square fit is used to calculate the rate of change 
+- Results are printed to the screen
+
+### com.esri.simulator.Http
+
+<pre>
+java -cp target/Simulator.jar com.esri.simulator.Http  http://p1:10104  planes00001.1M 50000 1000000
+Usage: Http <url> <file> <rate> <numrecords>
+</pre>
+
+
 
 ### com.esri.simulator.Kafka
 
@@ -51,46 +97,6 @@ Usage: Kafka &lt;broker-list-or-hub-name&gt; &lt;topic&gt; &lt;file&gt; &lt;rate
 - Sends lines from file to the specified broker-list-or-hub-name topic.  
 - The simulator tries to send numrecords at rate requested. 
 - If burst-delay-ms is specified the records are send in bursts ever burst-delay-ms milliseconds to achieve the desired rate. For example, if you request 10,000 e/s with a burst delay of 100; the simulator will send at max rate possible 1,000 events every 100 ms.  If not specified the results are sent one every 1/10,000 of a second. 
-
-
-### com.esri.simulator.Elasticsearch
-
-$ java -cp Simulator-jar-with-dependencies.jar com.esri.simulator.Elasticsearch 
-Usage: Elasticsearch &lt;elastic-search-transports&gt; &lt;cluster-name&gt; &lt;index&gt; &lt;type&gt; &lt;file&gt; &lt;rate&gt; &lt;numrecords&gt; (&lt;elastic-bulk-num&gt;)
-
-Used to test sending data directly to Elasticsearch from a file.
-
-### com.esri.simulator.FeatureLayerMon
-
-$ java -cp Simulator-jar-with-dependencies.jar com.esri.simulator.FeatureLayerMon 
-Usage: FeatureLayerMon &lt;Feature-Layer&gt; (&lt;Seconds-Between-Samples&gt; Default 5 seconds)  
-
-Example:
-
-$ java -cp Simulator.jar com.esri.simulator.FeatureLayerMon http://dj52web.westus.cloudapp.azure.com/arcgis/rest/services/Hosted/FAA-Stream/FeatureServer/0
-
-- The code counts the number of features from the Feature-Layer
-- If no count change is detected it will wait
-- Each time change is detected a sample is added and output to the screen
-- After count stops increasing; least-square fit is used to calculate the rate of change 
-- Results are printed to the screen
-
-### com.esri.simulator.ElasticIndexMon
-Monitors a Elasticsearch Index count and measures and reports rate of change in count.
-
-$ java -cp target/Simulator.jar com.esri.simulator.ElasticIndexMon
-Usage: ElasticIndexMon &lt;ElasticsearchServerPort&gt; &lt;Index/Type&gt; (&lt;username&gt; &lt;password> &lt;sampleRate&gt;)
-
-Example:
-
-$ java -cp target/Simulator.jar com.esri.simulator.ElasticIndexMon 172.17.2.5:9200 satellites/satellites "" "" 60
-
-- Elasticsearch running on 172.17.2.5 on default port of 9200
-- The index name is satellites and so is the type (satellites/satellites)
-- The quotes are because I wanted to enter 60 s (as the sample rate)
-
-*** NOTE: For GeoEvent you can get the username/password for the spatiotemportal datastore using datastore tool "listadmins". ***
-
 
 ### com.esri.simulator.KafkaTopicMon
 Monitors a Kafka Topic count and measures and reports rate of change in count.
@@ -104,6 +110,20 @@ $ java -cp target/Simulator.jar com.esri.simulator.KafkaTopicMon 172.17.2.5:9528
 - Gets counts for the satellites-in topic
 - The sample rate is set to 60; which is 60 seconds
 - At or around Kafka 0.10.x; when starting the tool displays a bunch of what looks like INFO messages from logger; if you append a redirect for error messages (e.g.  2>stderr.txt) to the command the messages will be hidden. Tried to configure logger for the tool but it did not help with these Error messages.
+
+
+### com.esri.simulator.Tcp
+
+$ java -cp Simulator-jar-with-dependencies.jar com.esri.simulator.Tcp 
+
+Usage: Tcp &lt;server&gt; &lt;port&gt; &lt;file&gt; &lt;rate&gt; &lt;numrecords&gt;
+- Sends lines from file to the specified server and port.  
+- The simulator tries to send numrecords at rate requested.
+- During the run the simulator counts the records and actual rate it was able to send and outputs that to the screen.
+- There is a limit to the rate Tcp can achieve; which depends on hardware and network speed; Memmory seems to be a big limiter on max speed (on i7 computer with 16G of memory max rate was around 150,000/s)
+- There is also a limit on the size of the file. I was able to run with a file containing 5 Million (~100 byte) lines; however, it would not load a 10 Million line file.
+
+
 
 ### com.esri.simulator.TcpSink
 
