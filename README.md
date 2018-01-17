@@ -125,7 +125,7 @@ The command outputs
 - Based on the rate the timing is adjusted to try to achieve the requested rate
 - The rate reported is the rate actually achieved
 
-### com.esri.simulator.Http2 (devlopment)
+### com.esri.simulator.Http2 (Under Development)
 
 Post lines from a file to URL. 
 
@@ -159,7 +159,7 @@ This command
 - The lines from the file planes00001.1M are added to a shared blocked queue at the rate specified
 - The threads read lines from the queue and send them to the url they were assigned
 
-Exaple Output
+Example Output
 
 <pre>
 172.17.2.9:26264
