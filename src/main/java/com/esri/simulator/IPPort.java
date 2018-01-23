@@ -42,7 +42,12 @@ public class IPPort {
 
     @Override
     public String toString() {
-        return ip + ":" + String.valueOf(port);
+        if (port == -1) {
+            return ip;
+        } else {
+            return ip + ":" + String.valueOf(port);
+        }
+        
     }
     
     

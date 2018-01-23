@@ -27,17 +27,29 @@ package com.esri.simulator;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.xbill.DNS.Lookup;
+import org.xbill.DNS.Record;
+import org.xbill.DNS.Type;
 
 /**
  *
  * @author david
  */
 public class Http2 {
+
+    private static final String IPADDRESS_PATTERN
+            = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+            + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 
     LinkedBlockingQueue<String> lbq = new LinkedBlockingQueue<>();
 
@@ -75,12 +87,43 @@ public class Http2 {
             Pattern pattern = Pattern.compile(appPat);
             Matcher matcher = pattern.matcher(url);
 
+            URL aURL = new URL(url);
+            String server = aURL.getHost();
+
+            Pattern IPpattern = Pattern.compile(IPADDRESS_PATTERN);
+            Matcher IPmatcher = IPpattern.matcher(server);
+
             String appStr = null;
             ArrayList<IPPort> ipPorts = null;
             if (matcher.find()) {
                 appStr = matcher.group();
                 MarathonInfo mi = new MarathonInfo();
                 ipPorts = mi.getIPPorts(matcher.group(1), 0);
+            } else if (IPmatcher.matches()) {
+                // This is an IP appStr and ipPorts leave null
+                // Send url as is
+            } else {
+                Lookup lookup = new Lookup(server, Type.A);
+                lookup.run();
+                System.out.println(lookup.getErrorString());
+                
+                int port = aURL.getPort();
+                
+                if (port == -1) {
+                    appStr = server;
+                } else {
+                    appStr = server + ":" + Integer.toString(port);
+                }
+               
+                ipPorts = new ArrayList<>();
+                for (Record ans : lookup.getAnswers()) {
+                    String ip = ans.rdataToString();                    
+                    IPPort ipport = new IPPort(ip, port);     
+                    ipPorts.add(ipport);
+                    System.out.println(ipport);
+
+                }
+
             }
 
             // Get the System Time as st (Start Time)            
@@ -94,15 +137,20 @@ public class Http2 {
             for (int i = 0; i < threads.length; i++) {
                 if (appStr == null) {
                     threads[i] = new HttpPosterThread(lbq, url);
-                } else {                    
-                    IPPort ipPort = ipPorts.get((i+1) % ipPorts.size());
+                } else {
                     
+                    if (ipPorts.size() == 0) {
+                        throw new Exception("No instances found!");
+                    }
+                    
+                    IPPort ipPort = ipPorts.get((i + 1) % ipPorts.size());
+
                     String urlIP = url.replace(appStr, ipPort.toString());
                     //System.out.println(urlIP);
                     threads[i] = new HttpPosterThread(lbq, urlIP);
-                    
+
                 }
-                
+
                 threads[i].start();
             }
 

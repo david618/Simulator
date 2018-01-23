@@ -15,9 +15,9 @@
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">10000</stringProp>
+          <stringProp name="LoopController.loops">1000</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">100</stringProp>
+        <stringProp name="ThreadGroup.num_threads">200</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <longProp name="ThreadGroup.start_time">1507319707000</longProp>
         <longProp name="ThreadGroup.end_time">1507319707000</longProp>
@@ -38,10 +38,10 @@
             </collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">djen41.westus2.cloudapp.azure.com</stringProp>
-          <stringProp name="HTTPSampler.port">10104</stringProp>
+          <stringProp name="HTTPSampler.port">80</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/</stringProp>
+          <stringProp name="HTTPSampler.path">/ce683ea7-3f7e-43cb-b6fe-6113acea0c3f/rtgis/receiver/planes/txt</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -89,7 +89,7 @@
         </ResultCollector>
         <hashTree/>
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV Data Set Config" enabled="true">
-          <stringProp name="filename">simFile_1000_10s.dat</stringProp>
+          <stringProp name="filename">planes00001</stringProp>
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="variableNames">line</stringProp>
           <boolProp name="ignoreFirstLine">false</boolProp>

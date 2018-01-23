@@ -20,14 +20,24 @@ package com.esri.simulator;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
@@ -49,7 +59,7 @@ public class HttpPosterThread extends Thread {
     private final CloseableHttpClient httpClient;
 
     private final HttpPost httpPost;
-    
+
     private long cntErr;
     private long cnt;
 
@@ -60,19 +70,50 @@ public class HttpPosterThread extends Thread {
     public long getCnt() {
         return cnt;
     }
-    
 
-    
     HttpPosterThread(LinkedBlockingQueue<String> lbq, String url) throws Exception {
         this.lbq = lbq;
         this.url = url;
 
-        SSLContextBuilder builder = new SSLContextBuilder();
-        builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
-        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
-                builder.build());
-        httpClient = HttpClients.custom().setSSLSocketFactory(
-                sslsf).build();
+        SSLContext sslContext = SSLContext.getInstance("SSL");
+
+        // Could be extended to allow username/password authentication
+//        CredentialsProvider provider = new BasicCredentialsProvider();
+//        UsernamePasswordCredentials credentials
+//                = new UsernamePasswordCredentials(username, password);
+//        provider.setCredentials(AuthScope.ANY, credentials);
+
+        sslContext.init(null, new TrustManager[]{new X509TrustManager() {
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                //System.out.println("getAcceptedIssuers =============");
+                return null;
+            }
+
+            @Override
+            public void checkClientTrusted(X509Certificate[] certs,
+                    String authType) {
+                //System.out.println("checkClientTrusted =============");
+            }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] certs,
+                    String authType) {
+                //System.out.println("checkServerTrusted =============");
+            }
+        }}, new SecureRandom());
+
+        // This simpilier version works too
+//        SSLContextBuilder builder = new SSLContextBuilder();
+//        builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
+//        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
+//                builder.build());
+        httpClient = HttpClients
+                .custom()
+                //.setDefaultCredentialsProvider(provider)
+                .setSSLContext(sslContext)
+                .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                .build();
 
         //httpClient = HttpClientBuilder.create().build();
         httpPost = new HttpPost(url);
@@ -104,14 +145,13 @@ public class HttpPosterThread extends Thread {
                 if (resp.getStatusLine().getStatusCode() != 200) {
                     cntErr += 1;
                 }
-                
+
                 // Using EntityUtils.consume hurt my kafkaHttp; did not help other ingest
                 //HttpEntity respEntity = resp.getEntity();
                 //EntityUtils.consume(respEntity);
                 httpPost.releaseConnection();
 
                 cnt += 1;
-                
 
             }
 
