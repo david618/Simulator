@@ -133,6 +133,7 @@ Changes
 - Added indication of error (error count) to output
 - Added additional optional parameter to support threads 
 - Added support to lookup ip and ports and send directly to Marathon App instances 
+- Added DNS lookup support; If DNS has multiple IP's; threads are assigned round-robin to the IP's
 
 <pre>
 java -cp target/Simulator.jar com.esri.simulator.Http2  
