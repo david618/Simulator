@@ -530,8 +530,8 @@ public class MarathonInfo {
             BufferedReader rd = new BufferedReader(
                     new InputStreamReader(response.getEntity().getContent()));
 
-            StringBuffer result = new StringBuffer();
-            String line = "";
+            StringBuilder result = new StringBuilder();
+            String line;
             while ((line = rd.readLine()) != null) {
                 result.append(line);
             }
@@ -547,7 +547,13 @@ public class MarathonInfo {
                 String eip = task.getString("host");
                 
                 JSONArray ports = task.getJSONArray("ports");
-                int port = ports.getInt(portIndex);
+                int port = -1;
+                try {
+                    port = ports.getInt(portIndex);
+                } catch (Exception e) {
+                    // ok to ignore
+                }
+                
                 
                 IPPort ipport = new IPPort(eip, port);
                                 
@@ -579,14 +585,26 @@ public class MarathonInfo {
         int numargs = args.length;
 
         if (numargs != 2 && numargs != 4) {
-            System.err.print("Usage: MarathonInfo <kafka|elastic> <framework-name> (<username> <password>)\n");
+            System.err.print("Usage: MarathonInfo <kafka|elastic|other> <framework-name<:port index>> (<username> <password>)\n");
         } else {
 
             MarathonInfo t = new MarathonInfo();
 
             String typ = args[0];
 
-            if (typ.equalsIgnoreCase("kafka")) {
+            if (typ.equalsIgnoreCase("other")) {
+                String appParts[] = args[1].split(":");
+                String appName = appParts[0];
+                int portIndex = 0;
+                if (appParts.length > 1) {
+                    portIndex = Integer.parseInt(appParts[1]);
+                }
+                
+                ArrayList<IPPort> ipports = t.getIPPorts(appName, portIndex);
+                for (IPPort ipport: ipports) {
+                    System.out.println(ipport);
+                }
+            } else if (typ.equalsIgnoreCase("kafka")) {
                 t.getBrokers(args[1]);
             } else if (typ.equalsIgnoreCase("elastic")) {
                 t.getElasticSearchClusterName(args[1]);
