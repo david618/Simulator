@@ -100,6 +100,7 @@ public class Tcp2 {
                 int portIndex = 0;
                 String appNameParts[] = appName.split(":");
                 if (appNameParts.length > 1) {
+                    appName = appNameParts[0];
                     portIndex = Integer.parseInt(appNameParts[1]);
                 }
                 System.out.println("portIndex:" + portIndex);
