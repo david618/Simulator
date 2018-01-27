@@ -96,13 +96,14 @@ public class Tcp2 {
             if (appMatcher.find()) {
                 // appNamePatter has app pattern
                 String appName = appMatcher.group(1);
-                System.out.println("appName:" + appName);
+                
                 int portIndex = 0;
                 String appNameParts[] = appName.split(":");
                 if (appNameParts.length > 1) {
                     appName = appNameParts[0];
                     portIndex = Integer.parseInt(appNameParts[1]);
                 }
+                System.out.println("appName:" + appName);
                 System.out.println("portIndex:" + portIndex);
                 MarathonInfo mi = new MarathonInfo();
 
