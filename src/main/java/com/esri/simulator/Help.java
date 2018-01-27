@@ -35,6 +35,7 @@ public class Help {
         System.out.println("com.esri.simulator.Elasticsearch2  : Send lines from file using bulk operation to Elasticsearch using Transport Protocol.");
         System.out.println("com.esri.simulator.Elasticsearch3  : Send lines from file using bulk operation to Elasticsearch using Http Protocol.");
         System.out.println("com.esri.simulator.Http            : Send lines from file to server using Http POST.");
+        System.out.println("com.esri.simulator.Http2           : Send lines from file to server using Http POST. Supports threading, dns lookup, app ip/port lookup");
         System.out.println("com.esri.simulator.Kafka           : Send lines from file to Kafka.");
         System.out.println("com.esri.simulator.Postgresql      : Send lines from a file to Postgresql Database.");        
         System.out.println("com.esri.simulator.Tcp             : Send lines from file to server on tcp port.");
