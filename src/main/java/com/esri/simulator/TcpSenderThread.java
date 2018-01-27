@@ -84,11 +84,9 @@ public class TcpSenderThread extends Thread {
                 if (line == null) {
                     break;
                 }
-                StringEntity event = new StringEntity(line);
-
                 // Send the String
 
-                os.write(event.toString().getBytes());
+                os.write(line.getBytes());
                 os.flush();
 
                 cnt += 1;

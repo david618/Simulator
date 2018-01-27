@@ -43,7 +43,6 @@ package com.esri.simulator;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -97,12 +96,13 @@ public class Tcp2 {
             if (appMatcher.find()) {
                 // appNamePatter has app pattern
                 String appName = appMatcher.group(1);
+                System.out.println("appName:" + appName);
                 int portIndex = 0;
                 String appNameParts[] = appName.split(":");
                 if (appNameParts.length > 1) {
                     portIndex = Integer.parseInt(appNameParts[1]);
                 }
-
+                System.out.println("portIndex:" + portIndex);
                 MarathonInfo mi = new MarathonInfo();
 
                 ipPorts = mi.getIPPorts(appName, portIndex);
