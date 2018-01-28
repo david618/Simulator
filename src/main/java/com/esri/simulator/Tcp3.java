@@ -42,6 +42,7 @@
  *      Uses DNS lookup and InetAddress to find ip's for a given name.
  *      Each thread is assigned a ip:port in a round robin fashion. 
  *      These changes increased max send rate from 140k/s to close to 600k/s
+ *
  * 
  * Creator: David Jennings
  */
@@ -52,6 +53,8 @@ import java.io.FileReader;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,7 +66,7 @@ import org.xbill.DNS.Type;
  *
  * @author david
  */
-public class Tcp2 {
+public class Tcp3 {
 
     private static final String IPADDRESS_PATTERN
             = "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
@@ -75,7 +78,8 @@ public class Tcp2 {
 
     /**
      *
-     * @param appNamePattern ip:port/app[marathon-app-name(:index)]/dns-name:port
+     * @param appNamePattern
+     * ip:port/app[marathon-app-name(:index)]/dns-name:port
      * @param filename File with lines of data to be sent.
      * @param rate Rate in lines per second to send.
      * @param numToSend Number of lines to send. If more than number of lines in
@@ -102,7 +106,7 @@ public class Tcp2 {
             if (appMatcher.find()) {
                 // appNamePatter has app pattern
                 String appName = appMatcher.group(1);
-                
+
                 int portIndex = 0;
                 String appNameParts[] = appName.split(":");
                 if (appNameParts.length > 1) {
@@ -140,9 +144,9 @@ public class Tcp2 {
                 //System.out.println(lookup.getErrorString());
                 if (lookup.getAnswers() == null) {
                     InetAddress addr = InetAddress.getByName(dnsName);
-                    
+
                     IPPort ipport = new IPPort(addr.getHostAddress(), port);
-                    ipPorts.add(ipport);                                       
+                    ipPorts.add(ipport);
                 } else {
                     for (Record ans : lookup.getAnswers()) {
                         String ip = ans.rdataToString();
@@ -150,10 +154,8 @@ public class Tcp2 {
                         ipPorts.add(ipport);
                         System.out.println(ipport);
 
-                    }                    
+                    }
                 }
-
-
 
             }
 
@@ -162,7 +164,7 @@ public class Tcp2 {
                     ipPorts.remove(ipport);
                 }
             }
-            
+
             if (ipPorts.size() == 0) {
                 throw new UnsupportedOperationException("Could not discover the any ip port combinations.");
             }
@@ -182,141 +184,21 @@ public class Tcp2 {
             br.close();
             fr.close();
 
-            // Create Iterator from Array
-            Iterator<String> linesIt = lines.iterator();
-
-            // Get the System Time as st (Start Time)            
-            Long st = System.currentTimeMillis();
-
-            // Count of Records Sent
-            Integer cnt = 0;
-
             // Create the TcpSenderThreads
             TcpSenderThread[] threads = new TcpSenderThread[numThreads];
 
-            
-            for (int i = 0; i< numThreads; i++) {
+            for (int i = 0; i < numThreads; i++) {
                 // Use modulo to get one of the ipport's 0
-                IPPort ipPort = ipPorts.get((i + 1) % ipPorts.size());                
+                IPPort ipPort = ipPorts.get((i + 1) % ipPorts.size());
                 threads[i] = new TcpSenderThread(lbq, ipPort.getIp(), ipPort.getPort());
                 threads[i].start();
 
-            }
-
-            Long timeLastDisplayedRate = System.currentTimeMillis();
-            Long timeStartedBatch = System.currentTimeMillis();            
-            
-            while (cnt < numToSend) {
-                
-                if (System.currentTimeMillis() - timeLastDisplayedRate > 5000) {
-                    // Calculate rate and output every 5000ms 
-                    timeLastDisplayedRate = System.currentTimeMillis();
-
-                    int cnts = 0;
-                    int cntErr = 0;
-
-                    // Get Counts from Threads
-                    for (TcpSenderThread thread : threads) {
-                        cnts += thread.getCnt();
-                        cntErr += thread.getCntErr();
-                    }
-
-                    Double curRate = (double) cnts / (System.currentTimeMillis() - st) * 1000;
-
-                    System.out.println(cnts + "," + cntErr + "," + String.format("%.0f", curRate));
-
-                }                
-
-                if (!linesIt.hasNext()) {
-                    linesIt = lines.iterator();  // Reset Iterator
-                }
-
-                if (appendTime) {
-                    // assuming CSV
-
-                    line = linesIt.next() + "," + String.valueOf(System.currentTimeMillis()) + "\n";
-                } else {
-                    line = linesIt.next() + "\n";
-                }
-
-                lbq.put(line);
-
-                cnt += 1;
-
-                if (cnt % rate == 0) {
-                    // Wait until one second before queuing next rate events into lbq
-                    // Send rate events wait until 1 second is up
-                    long timeToWait = 1000 - (System.currentTimeMillis() - timeStartedBatch);
-                    if (timeToWait > 0) {
-                        Thread.sleep(timeToWait);
-                    }
-                    timeStartedBatch = System.currentTimeMillis();
-                }
-            }
-
-            int cnts = 0;
-            int cntErr = 0;
-            int prevCnts = 0;
-
-            while (true) {
-                if (System.currentTimeMillis() - timeLastDisplayedRate > 5000) {
-                    // Calculate rate and output every 5000ms 
-                    timeLastDisplayedRate = System.currentTimeMillis();
-
-                    // Get Counts from Threads
-                    for (TcpSenderThread thread : threads) {
-                        cnts += thread.getCnt();
-                        cntErr += thread.getCntErr();
-                    }
-
-                    Double curRate = (double) cnts / (System.currentTimeMillis() - st) * 1000;
-
-                    System.out.println(cnts + "," + cntErr + "," + String.format("%.0f", curRate));
-
-                    // End if the lbq is empty
-                    if (lbq.size() == 0) {
-                        System.out.println("Queue Empty");
-                        break;
-                    }
-
-                    // End if the cnts from threads match what was sent
-                    if (cnts >= numToSend) {
-                        System.out.println("Count Sent >= Number Requested");
-                        break;
-                    }
-
-                    // End if cnts is changing 
-                    if (cnts == prevCnts) {
-                        System.out.println("Counts are not changing.");
-                        break;
-                    }
-
-                    cnts = 0;
-                    cntErr = 0;
-                    prevCnts = cnts;
-
-                }
             }            
             
-            // Terminate Threads
-            for (TcpSenderThread thread : threads) {
-                thread.terminate();
-            }
+//            // Start a Timer 
+            Timer timer = new Timer(true);
+            timer.scheduleAtFixedRate(new LoadEventIntoQueue(lbq, lines, numToSend, rate, threads), 0, 1000);            
 
-            cnts = 0;
-            cntErr = 0;
-
-            for (TcpSenderThread thread : threads) {
-                cnts += thread.getCnt();
-                cntErr += thread.getCntErr();
-            }
-
-            Double sendRate = (double) cnts / (System.currentTimeMillis() - st) * 1000;
-
-            System.out.println(cnts + "," + cntErr + "," + String.format("%.0f", sendRate));
-
-            System.exit(0);            
-            
 
         } catch (Exception e) {
 
@@ -341,27 +223,25 @@ public class Tcp2 {
         } else {
             // Initial the Tcp Class with the server and port
 
-                String serverPort = args[0];
-                String filename = args[1];
-                Integer rate = Integer.parseInt(args[2]);                
-                Integer numrecords = Integer.parseInt(args[3]);                
-                Integer numThreads = 1;
-                Boolean appendTime = false;
+            String serverPort = args[0];
+            String filename = args[1];
+            Integer rate = Integer.parseInt(args[2]);
+            Integer numrecords = Integer.parseInt(args[3]);
+            Integer numThreads = 1;
+            Boolean appendTime = false;
 
-                switch (numargs) {
-                    case 5:
-                        numThreads = Integer.parseInt(args[4]);                        
-                        break;
-                    case 6:
-                        numThreads = Integer.parseInt(args[4]);                        
-                        appendTime = Boolean.parseBoolean(args[5]);
-                        break;
-                }
+            switch (numargs) {
+                case 5:
+                    numThreads = Integer.parseInt(args[4]);
+                    break;
+                case 6:
+                    numThreads = Integer.parseInt(args[4]);
+                    appendTime = Boolean.parseBoolean(args[5]);
+                    break;
+            }
 
-
-                Tcp2 t = new Tcp2();
-                t.sendFile(serverPort, filename, rate, numrecords, numThreads, appendTime);
-
+            Tcp2 t = new Tcp2();
+            t.sendFile(serverPort, filename, rate, numrecords, numThreads, appendTime);
 
         }
 
