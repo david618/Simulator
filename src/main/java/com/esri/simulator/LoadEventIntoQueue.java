@@ -81,9 +81,9 @@ public class LoadEventIntoQueue extends TimerTask {
         while (i < numPerSec) {
 
             i++;
-            cnt++;
+            
 
-            if (cnt > numToSend) {
+            if (cnt >= numToSend) {
                 // End Send
                 this.cancel();
 
@@ -171,7 +171,6 @@ public class LoadEventIntoQueue extends TimerTask {
         }
 
         runCnt += 1;
-        System.out.println("Run: " + runCnt + " : " + i);
 
     }
 }
