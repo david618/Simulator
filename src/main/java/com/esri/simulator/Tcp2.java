@@ -364,7 +364,7 @@ public class Tcp2 {
                 }
 
 
-                Tcp2 t = new Tcp2();
+                Tcp3 t = new Tcp3();
                 t.sendFile(serverPort, filename, rate, numrecords, numThreads, appendTime);
 
 
