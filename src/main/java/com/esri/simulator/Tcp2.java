@@ -52,6 +52,8 @@ import java.io.FileReader;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,6 +74,9 @@ public class Tcp2 {
             + "([01]?\\d\\d?|2[0-4]\\d|25[0-5]).*";
 
     LinkedBlockingQueue<String> lbq = new LinkedBlockingQueue<>();
+    // Question is abq faster than lbq in this use case?
+    //BlockingQueue<String> abq = new ArrayBlockingQueue<>(50000);
+    
 
     /**
      *
@@ -85,7 +90,7 @@ public class Tcp2 {
      */
     public void sendFile(String appNamePattern, String filename, Integer rate, Integer numToSend, Integer numThreads, boolean appendTime) {
         try {
-
+            
             // See if the url contains app(name)
             String appPat = "app\\[(.*)\\]";
 
