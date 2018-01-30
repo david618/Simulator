@@ -92,6 +92,7 @@ public class KafkaTopicMon {
 //            consumer.seekToBeginning(Collections.emptySet());
 //            cnt1 = partitions.stream().mapToLong(p -> endPartitions.get(p) - consumer.position(p)).sum();
             Iterator itTP = endPartitions.entrySet().iterator();
+            cnt1 = 0;
             while (itTP.hasNext()) {
                 Map.Entry tp = (Map.Entry)itTP.next();
                 cnt1 += (long) tp.getValue();
