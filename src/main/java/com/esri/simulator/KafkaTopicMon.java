@@ -89,9 +89,14 @@ public class KafkaTopicMon {
             consumer.seekToEnd(Collections.emptySet());
             Map<TopicPartition, Long> endPartitions = partitions.stream()
                     .collect(Collectors.toMap(Function.identity(), consumer::position));
-            consumer.seekToBeginning(Collections.emptySet());
-            cnt1 = partitions.stream().mapToLong(p -> endPartitions.get(p) - consumer.position(p)).sum();
-
+//            consumer.seekToBeginning(Collections.emptySet());
+//            cnt1 = partitions.stream().mapToLong(p -> endPartitions.get(p) - consumer.position(p)).sum();
+            Iterator itTP = endPartitions.entrySet().iterator();
+            while (itTP.hasNext()) {
+                Map.Entry tp = (Map.Entry)itTP.next();
+                cnt1 += (long) tp.getValue();
+            }
+            
             t1 = System.currentTimeMillis();
 
             if (cnt2 == -1) {
