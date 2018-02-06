@@ -64,7 +64,7 @@ public class TcpSink {
             if (currentCnt > prevCnt) {
                 System.out.println(System.currentTimeMillis() + "," + currentCnt);       
             } else {
-                if (currentCnt > 0) {
+                if (currentCnt > 0 && tssList.isEmpty()) {
                     System.out.println("Done");
                     long et = 0;
                     for (TcpSinkServer1 tss : tssList) {

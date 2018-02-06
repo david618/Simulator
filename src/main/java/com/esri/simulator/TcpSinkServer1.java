@@ -16,7 +16,6 @@
  * Contributors:
  *     David Jennings
  */
-
 /**
  * Used by TcpSink to listen for Messages.
  *
@@ -53,9 +52,8 @@ public class TcpSinkServer1 extends Thread {
 
     public long getLastTime() {
         return lastTime;
-    }    
-    
-    
+    }
+
     @Override
     public void run() {
         try {
@@ -77,16 +75,18 @@ public class TcpSinkServer1 extends Thread {
                         cnt += 1;
                     }
 
-                } 
+                } else {
+                    if ((System.currentTimeMillis() - lastTime) > 2000) {
+                        this.currentThread().interrupt();
+                    }
+                }
 
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
 
     }
-
-
 
 }
