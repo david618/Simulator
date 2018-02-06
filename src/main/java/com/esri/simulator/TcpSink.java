@@ -62,9 +62,22 @@ public class TcpSink {
             }
 
             if (currentCnt > prevCnt) {
-                System.out.println(System.currentTimeMillis() + "," + (currentCnt - prevCnt));       
+                System.out.println(System.currentTimeMillis() + "," + currentCnt);       
             } else {
-                System.out.println("Done");
+                if (currentCnt > 0) {
+                    System.out.println("Done");
+                    long et = 0;
+                    for (TcpSinkServer1 tss : tssList) {
+                        if (tss.lastTime > et) et = tss.lastTime;
+                    }
+                    
+                    
+                    Double rate = ((double) currentCnt/(et - st) * 1000);
+                    System.out.println("Average Rate: " + rate);
+                    currentCnt = 0L;
+                    prevCnt = 0L;
+                }
+                
             }                                   
             prevCnt = currentCnt;
 

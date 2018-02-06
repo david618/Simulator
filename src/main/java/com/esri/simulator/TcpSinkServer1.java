@@ -28,7 +28,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import org.apache.commons.math3.stat.regression.SimpleRegression;
 
 /**
  *
@@ -39,10 +38,12 @@ public class TcpSinkServer1 extends Thread {
     private Socket socket = null;
     boolean displayMessages;
     long cnt;
+    long lastTime;
 
     public TcpSinkServer1(Socket socket, boolean displayMessages) {
         this.socket = socket;
         this.cnt = 0;
+        this.lastTime = 0L;
         this.displayMessages = displayMessages;
     }
 
@@ -50,6 +51,9 @@ public class TcpSinkServer1 extends Thread {
         return cnt;
     }
 
+    public long getLastTime() {
+        return lastTime;
+    }    
     
     
     @Override
@@ -58,14 +62,13 @@ public class TcpSinkServer1 extends Thread {
 
             BufferedReader in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 
-            SimpleRegression regression = new SimpleRegression();
-
             System.out.println("Listening");
 
             while (true) {
                 if (in.ready()) {
 
                     String line = in.readLine();
+                    lastTime = System.currentTimeMillis();
 
                     if (displayMessages) {
                         System.out.println(line);
@@ -83,5 +86,7 @@ public class TcpSinkServer1 extends Thread {
         }
 
     }
+
+
 
 }
