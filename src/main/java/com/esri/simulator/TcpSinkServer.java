@@ -27,8 +27,6 @@ package com.esri.simulator;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 
 /**

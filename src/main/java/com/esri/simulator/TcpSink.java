@@ -16,19 +16,22 @@
  * Contributors:
  *     David Jennings
  */
-
 /**
- * Listens on TCP Port for messages. 
+ * Listens on TCP Port for messages.
  * Counts Messages based on value of sampleEveryMessages adds a point to the linear regresssion
  * After collecting three samples it will output the rate.
  * After 10 second pause the count and regression are reset.
- * 
+ *
  * Creator: David Jennings
  */
 package com.esri.simulator;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  *
@@ -36,25 +39,74 @@ import java.net.Socket;
  */
 public class TcpSink {
 
-    public TcpSink(Integer port, Integer sampleEveryNSecs, boolean displaymessages) {
-        try {
-            ServerSocket ss = new ServerSocket(port);
-            
-            System.out.println("After starting this; create or restart the GeoEvent service.");
-            System.out.println("Once connected you see a 'Listening' message");
-            
-            while (true) {
-                Socket cs = ss.accept();
-                TcpSinkServer ts = new TcpSinkServer(cs, sampleEveryNSecs, displaymessages);
-                ts.start();
-            }
-            
-        } catch (Exception e) {
-            
+    private class GetCounts extends TimerTask {
+
+        ArrayList<TcpSinkServer1> tssList;
+
+        long st = 0L;
+        long currentCnt = 0L;
+        long prevCnt = 0L;
+
+        public GetCounts(ArrayList<TcpSinkServer1> tssList) {
+            this.tssList = tssList;
+            this.st = 0L;
+            this.currentCnt = 0L;
+            this.prevCnt = 0L;
         }
 
-        
-        
+        @Override
+        public void run() {                       
+            currentCnt = 0L;
+            for (TcpSinkServer1 tss : tssList) {
+                currentCnt += tss.getCnt();
+            }
+
+            if (currentCnt > prevCnt) {
+                System.out.println(System.currentTimeMillis() + "," + (currentCnt - prevCnt));       
+            } else {
+                System.out.println("Done");
+            }                                   
+            prevCnt = currentCnt;
+
+        }
+
+    }
+
+    Integer port;
+    Integer sampleEveryNSecs;
+    Boolean displayMessages;
+
+    private void listenForConnections() {
+        try {
+            ServerSocket ss = new ServerSocket(port);
+
+            System.out.println("After starting this; create or restart the GeoEvent service.");
+            System.out.println("Once connected you see a 'Listening' message");
+
+            ArrayList<TcpSinkServer1> tssList = new ArrayList<>();
+
+            // Setup Timer to Get Counts
+            Timer timer = new Timer(true);
+            timer.scheduleAtFixedRate(new GetCounts(tssList), 0, 5000);
+
+            while (true) {
+                Socket cs = ss.accept();
+                TcpSinkServer1 ts = new TcpSinkServer1(cs, displayMessages);
+                ts.start();
+                tssList.add(ts);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public TcpSink(Integer port, Integer sampleEveryNSecs, Boolean displayMessages) {
+        this.port = port;
+        this.sampleEveryNSecs = sampleEveryNSecs;
+        this.displayMessages = displayMessages;
+        listenForConnections();
+
     }
 
     public static void main(String[] args) {
@@ -73,24 +125,21 @@ public class TcpSink {
          */
         int numargs = args.length;
 
-        if (numargs < 1 || numargs > 3 ) {
-            System.err.print("Usage: TcpSink <port-to-listen-on> (<sample-every-N-records/1000>) (<display-messages/false>)\n");            
+        if (numargs < 1 || numargs > 3) {
+            System.err.print("Usage: TcpSink <port-to-listen-on> (<sample-every-N-records/1000>) (<display-messages/false>)\n");
         } else {
-            WebSocketSink a = new WebSocketSink();
-            
+
             switch (numargs) {
                 case 1:
-                    new TcpSink(Integer.parseInt(args[0]), 1000, false);              
+                    new TcpSink(Integer.parseInt(args[0]), 1000, false);
                     break;
                 case 2:
-                    new TcpSink(Integer.parseInt(args[0]), Integer.parseInt(args[1]), false);               
+                    new TcpSink(Integer.parseInt(args[0]), Integer.parseInt(args[1]), false);
                     break;
-                default:                    
-                    new TcpSink(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Boolean.parseBoolean(args[2]));                    
+                default:
+                    new TcpSink(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Boolean.parseBoolean(args[2]));
                     break;
             }
-                    
-            
 
         }
 
