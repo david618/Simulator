@@ -27,6 +27,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -53,6 +55,16 @@ public class TcpSinkServer1 extends Thread {
     public long getLastTime() {
         return lastTime;
     }
+    
+    public void terminate() {
+        
+        try {
+            socket.close();
+            this.interrupt();
+        } catch (IOException ex) {
+            Logger.getLogger(TcpSenderThread.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }    
 
     @Override
     public void run() {
