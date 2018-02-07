@@ -32,6 +32,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 
 /**
  *
@@ -46,32 +47,51 @@ public class TcpSink {
         long st = 0L;
         long currentCnt = 0L;
         long prevCnt = 0L;
+        SimpleRegression regression;
+        int numSamples = 0;
+        long tm;
 
         public GetCounts(ArrayList<TcpSinkServer1> tssList) {
             this.tssList = tssList;
-            this.st = 0L;
-            this.currentCnt = 0L;
-            this.prevCnt = 0L;
+            st = 0L;
+            currentCnt = 0L;
+            prevCnt = 0L;
+            regression = new SimpleRegression();
+            tm = 0L;
         }
 
         @Override
         public void run() {
             currentCnt = 0L;
+            
             for (TcpSinkServer1 tss : tssList) {
                 currentCnt += tss.getCnt();
             }
 
             if (currentCnt > prevCnt) {
+
                 if (prevCnt == 0) {
                     st = System.currentTimeMillis();
 
                     for (TcpSinkServer1 tss : tssList) {
                         long tssSt = tss.getFirstTime();
-                        if (tssSt < st && tssSt > 0) st = tss.getFirstTime();
+                        if (tssSt < st && tssSt > 0) {
+                            st = tss.getFirstTime();
+                        }
                     }
 
                 }
-                System.out.println(System.currentTimeMillis() + "," + currentCnt);
+                numSamples += 1;
+                tm = System.currentTimeMillis();
+                regression.addData(tm, currentCnt);
+
+                if (numSamples > 2) {
+                    double rcvRate = regression.getSlope() * 1000;
+                    System.out.println(numSamples + "," + tm + "," + currentCnt + "," + String.format("%.0f", rcvRate));
+                } else {
+                    System.out.println(numSamples + "," + tm + "," + currentCnt);
+                }
+
             } else {
                 if (currentCnt > 0) {
                     System.out.println("Done");
@@ -82,6 +102,22 @@ public class TcpSink {
                         }
                         tss.terminate();
 
+                    }
+
+                    numSamples -= 1;
+                    // Remove the last sample
+                    regression.removeData(tm, currentCnt);
+                    System.out.println("Removing: " + tm + "," + currentCnt);
+                    // Output Results
+                    double rcvRate = regression.getSlope() * 1000;  // converting from ms to seco                    
+
+                    if (numSamples > 4) {
+                        double rateStdErr = regression.getSlopeStdErr();
+                        System.out.format("%d , %.0f, %.4f\n", currentCnt, rcvRate, rateStdErr);
+                    } else if (numSamples >= 2) {
+                        System.out.format("%d , %.0f\n", currentCnt, rcvRate);
+                    } else {
+                        System.out.println("Not enough samples to calculate rate. ");
                     }
 
                     Double rate = ((double) currentCnt / (double) (et - st) * 1000.0);
