@@ -60,7 +60,7 @@ public class TcpSinkServer1 extends Thread {
 
             BufferedReader in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 
-            System.out.println("Listening");
+            System.out.println("Thread Started");
 
             while (true) {
                 if (in.ready()) {
@@ -75,11 +75,7 @@ public class TcpSinkServer1 extends Thread {
                         cnt += 1;
                     }
 
-                } else {
-                    if ((System.currentTimeMillis() - lastTime) > 2000) {
-                        this.currentThread().interrupt();
-                    }
-                }
+                } 
 
             }
 
