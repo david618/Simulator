@@ -46,6 +46,7 @@ public class TcpSinkServer1 extends Thread {
         this.socket = socket;
         this.cnt = 0;
         this.lastTime = 0L;
+        this.firstTime = 0L;
         this.displayMessages = displayMessages;
     }
 
@@ -66,6 +67,9 @@ public class TcpSinkServer1 extends Thread {
     public void terminate() {
         
         try {
+            cnt = 0L;            
+            this.lastTime = 0L;
+            this.firstTime = 0L;
             socket.close();            
             this.interrupt();
         } catch (IOException ex) {
