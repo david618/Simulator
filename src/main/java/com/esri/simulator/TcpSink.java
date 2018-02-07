@@ -55,32 +55,41 @@ public class TcpSink {
         }
 
         @Override
-        public void run() {                       
+        public void run() {
             currentCnt = 0L;
             for (TcpSinkServer1 tss : tssList) {
                 currentCnt += tss.getCnt();
             }
 
             if (currentCnt > prevCnt) {
-                System.out.println(System.currentTimeMillis() + "," + currentCnt);       
+                if (prevCnt == 0) {
+                    st = System.currentTimeMillis();
+
+                    for (TcpSinkServer1 tss : tssList) {
+                        if (tss.getFirstTime() < st) st = tss.getFirstTime();
+                    }
+
+                }
+                System.out.println(System.currentTimeMillis() + "," + currentCnt);
             } else {
                 if (currentCnt > 0) {
                     System.out.println("Done");
                     long et = 0;
                     for (TcpSinkServer1 tss : tssList) {
-                        if (tss.lastTime > et) et = tss.lastTime;
+                        if (tss.lastTime > et) {
+                            et = tss.lastTime;
+                        }
                         tss.terminate();
-                        
-                        
+
                     }
-                                        
-                    Double rate = ((double) currentCnt/(double)(et - st) * 1000.0);
+
+                    Double rate = ((double) currentCnt / (double) (et - st) * 1000.0);
                     System.out.println("Average Rate: " + rate);
                     currentCnt = 0L;
                     prevCnt = 0L;
                 }
-                
-            }                                   
+
+            }
             prevCnt = currentCnt;
 
         }

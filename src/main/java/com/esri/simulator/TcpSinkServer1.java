@@ -40,6 +40,7 @@ public class TcpSinkServer1 extends Thread {
     boolean displayMessages;
     long cnt;
     long lastTime;
+    long firstTime;
 
     public TcpSinkServer1(Socket socket, boolean displayMessages) {
         this.socket = socket;
@@ -55,11 +56,17 @@ public class TcpSinkServer1 extends Thread {
     public long getLastTime() {
         return lastTime;
     }
+
+    public long getFirstTime() {
+        return firstTime;
+    }
+    
+    
     
     public void terminate() {
         
         try {
-            socket.close();
+            socket.close();            
             this.interrupt();
         } catch (IOException ex) {
             Logger.getLogger(TcpSenderThread.class.getName()).log(Level.SEVERE, null, ex);
@@ -85,6 +92,9 @@ public class TcpSinkServer1 extends Thread {
 
                     } else {
                         cnt += 1;
+                        if (cnt == 1) {
+                            firstTime = System.currentTimeMillis();
+                        }
                     }
 
                 } 
