@@ -72,6 +72,7 @@ public class TcpSinkServer1 extends Thread {
             this.firstTime = 0L;
             socket.close();            
             this.interrupt();
+            Thread.currentThread().interrupt();
         } catch (IOException ex) {
             Logger.getLogger(TcpSenderThread.class.getName()).log(Level.SEVERE, null, ex);
         }

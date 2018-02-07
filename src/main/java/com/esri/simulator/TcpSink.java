@@ -66,7 +66,8 @@ public class TcpSink {
                     st = System.currentTimeMillis();
 
                     for (TcpSinkServer1 tss : tssList) {
-                        if (tss.getFirstTime() < st) st = tss.getFirstTime();
+                        long tssSt = tss.getFirstTime();
+                        if (tssSt < st && tssSt > 0) st = tss.getFirstTime();
                     }
 
                 }
@@ -84,6 +85,7 @@ public class TcpSink {
                     }
 
                     Double rate = ((double) currentCnt / (double) (et - st) * 1000.0);
+                    System.out.println("Total Count: " + currentCnt);
                     System.out.println("Average Rate: " + rate);
                     currentCnt = 0L;
                     prevCnt = 0L;
