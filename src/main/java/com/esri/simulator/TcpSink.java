@@ -94,7 +94,7 @@ public class TcpSink {
 
             } else {
                 if (currentCnt > 0) {
-                    System.out.println("Done");
+                    //System.out.println("Done");
                     long et = 0;
                     for (TcpSinkServer1 tss : tssList) {
                         if (tss.lastTime > et) {
@@ -125,6 +125,8 @@ public class TcpSink {
                     System.out.println("Average Rate: " + rate);
                     currentCnt = 0L;
                     prevCnt = 0L;
+                    regression = new SimpleRegression();
+                    tm = 0L;
                 }
 
             }
