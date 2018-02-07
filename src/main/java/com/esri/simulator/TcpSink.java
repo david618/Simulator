@@ -122,7 +122,7 @@ public class TcpSink {
 
                     Double rate = ((double) currentCnt / (double) (et - st) * 1000.0);
                     System.out.println("Total Count: " + currentCnt);
-                    System.out.println("Average Rate: " + rate);
+                    System.out.format("Average Rate: %.0f\n",rate);
                     currentCnt = 0L;
                     prevCnt = 0L;
                     regression = new SimpleRegression();
