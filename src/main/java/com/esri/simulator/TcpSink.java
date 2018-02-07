@@ -127,6 +127,7 @@ public class TcpSink {
                     prevCnt = 0L;
                     regression = new SimpleRegression();
                     tm = 0L;
+                    numSamples = 0;
                 }
 
             }
