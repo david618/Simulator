@@ -84,7 +84,7 @@ public class TcpSinkServer1 extends Thread {
 
             BufferedReader in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 
-            System.out.println("Thread Started");
+            System.out.println("Listening");
 
             while (true) {
                 if (in.ready()) {
