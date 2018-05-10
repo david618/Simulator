@@ -1,3 +1,10 @@
+
+----------
+
+This project has been renamed and revised.  Pleas use [rttest](https://github.com/david618/rttest)
+
+----------
+
 # Simulator
 
 Reads simulation file into memory then sends line by line to the specified host and port via TCP or directly to Kafka/Elasticsearch.
