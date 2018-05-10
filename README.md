@@ -1,7 +1,10 @@
 
 ----------
 
-This project has been renamed and revised.  Pleas use [rttest](https://github.com/david618/rttest)
+# -- UPDATE --
+This repo has been renamed and revised.  Pleas use [rttest](https://github.com/david618/rttest)
+
+# -- UPDATE --
 
 ----------
 
